@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Portfolio Management System</title>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<style>
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --border:   #30363d;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --green:    #3fb950;
+    --red:      #f85149;
+    --yellow:   #d29922;
+    --blue:     #58a6ff;
+    --purple:   #bc8cff;
+    --accent:   #1f6feb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
+
+  /* ── Nav ── */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 32px; height: 56px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand { font-size: 16px; font-weight: 700; color: var(--blue); letter-spacing: .5px; display:flex; align-items:center; gap:8px; }
+  .nav-brand svg { width:22px; height:22px; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .tab { padding: 6px 14px; border-radius: 6px; cursor: pointer; color: var(--muted); transition: all .15s; border: none; background: none; font-size: 13px; }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,.05); }
+  .tab.active { color: var(--text); background: var(--accent); }
+  .nav-time { margin-left: auto; color: var(--muted); font-size: 12px; }
+
+  /* ── Layout ── */
+  main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── KPI cards ── */
+  .kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 8px; }
+  .kpi-value { font-size: 26px; font-weight: 700; line-height: 1; }
+  .kpi-sub   { font-size: 12px; margin-top: 6px; color: var(--muted); }
+  .pos { color: var(--green); } .neg { color: var(--red); }
+
+  /* ── Grid 2-col ── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 16px; }
+
+  /* ── Table ── */
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 10px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,.5); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge-ok     { background: rgba(63,185,80,.15); color: var(--green); }
+  .badge-alert  { background: rgba(210,153,34,.15); color: var(--yellow); }
+  .badge-breach { background: rgba(248,81,73,.15); color: var(--red); }
+  .badge-buy    { background: rgba(88,166,255,.15); color: var(--blue); }
+  .badge-sell   { background: rgba(248,81,73,.15); color: var(--red); }
+
+  /* ── Full-width card ── */
+  .card-full { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .card-header h3 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .7px; }
+
+  /* ── Form / modal ── */
+  .btn { padding: 7px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity .15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: .85; }
+  .btn-danger  { background: rgba(248,81,73,.2); color: var(--red); border: 1px solid var(--red); }
+  .btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 4px; }
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:200; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; width: 480px; max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-size: 16px; margin-bottom: 20px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1/-1; }
+  label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  input, select, textarea {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; color: var(--text); font-size: 13px; width: 100%;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+  /* ── Progress bar ── */
+  .prog-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+  .prog-fill { height: 100%; border-radius: 3px; transition: width .4s; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .grid2   { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+    </svg>
+    Portfolio MS
+  </div>
+  <div class="nav-tabs">
+    <button class="tab active" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="tab" onclick="showPage('holdings')">Holdings</button>
+    <button class="tab" onclick="showPage('transactions')">Transactions</button>
+    <button class="tab" onclick="showPage('risk')">Risk</button>
+  </div>
+  <div class="nav-time" id="clock"></div>
+</nav>
+
+<main>
+
+<!-- ════════════ DASHBOARD ════════════ -->
+<div id="page-dashboard" class="page active">
+  <div class="kpi-row" id="kpi-row">
+    <div class="kpi"><div class="kpi-label">Total Market Value</div><div class="kpi-value" id="kpi-mv">—</div><div class="kpi-sub">USD</div></div>
+    <div class="kpi"><div class="kpi-label">Total Cost Basis</div><div class="kpi-value" id="kpi-cost">—</div><div class="kpi-sub">USD</div></div>
+    <div class="kpi"><div class="kpi-label">Unrealized P&L</div><div class="kpi-value" id="kpi-pnl">—</div><div class="kpi-sub" id="kpi-pnl-pct">—</div></div>
+    <div class="kpi"><div class="kpi-label">Active Accounts</div><div class="kpi-value" id="kpi-accts">—</div><div class="kpi-sub">portfolios</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><div class="card-title">P&L by Account</div><div id="chart-pnl" style="min-height:220px"></div></div>
+    <div class="card"><div class="card-title">Exposure by Asset Class</div><div id="chart-exposure" style="min-height:220px"></div></div>
+  </div>
+
+  <div class="card-full">
+    <div class="card-header"><h3>Account Portfolio Overview</h3></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Account</th><th>Type</th>
+          <th style="text-align:right">Cost Basis</th>
+          <th style="text-align:right">Market Value</th>
+          <th style="text-align:right">Unrealized P&L</th>
+          <th style="text-align:right">P&L %</th>
+        </tr></thead>
+        <tbody id="tbl-summary"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ HOLDINGS ════════════ -->
+<div id="page-holdings" class="page">
+  <div class="card-full">
+    <div class="card-header">
+      <h3>Current Holdings</h3>
+      <select id="filter-account" onchange="loadHoldings()" style="width:200px">
+        <option value="">All Accounts</option>
+      </select>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Account</th><th>Ticker</th><th>Asset Name</th><th>Class</th>
+          <th style="text-align:right">Qty</th>
+          <th style="text-align:right">Avg Cost</th>
+          <th style="text-align:right">Last Price</th>
+          <th style="text-align:right">Mkt Value</th>
+          <th style="text-align:right">Unreal. P&L</th>
+          <th style="text-align:right">P&L %</th>
+        </tr></thead>
+        <tbody id="tbl-holdings"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ TRANSACTIONS ════════════ -->
+<div id="page-transactions" class="page">
+  <div class="card-full">
+    <div class="card-header">
+      <h3>Transactions</h3>
+      <button class="btn btn-primary" onclick="openTxnModal()">+ New Trade</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Account</th><th>Ticker</th><th>Direction</th><th>Type</th>
+          <th style="text-align:right">Qty</th>
+          <th style="text-align:right">Price</th>
+          <th style="text-align:right">Notional</th>
+          <th>Ccy</th><th>Counterparty</th><th>Status</th><th>Traded At</th><th></th>
+        </tr></thead>
+        <tbody id="tbl-txn"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ RISK ════════════ -->
+<div id="page-risk" class="page">
+  <div class="kpi-row" id="risk-kpi-row" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi"><div class="kpi-label">Total Limits</div><div class="kpi-value" id="kpi-total-limits">—</div></div>
+    <div class="kpi"><div class="kpi-label">Alerts</div><div class="kpi-value" id="kpi-alerts" style="color:var(--yellow)">—</div></div>
+    <div class="kpi"><div class="kpi-label">Breaches</div><div class="kpi-value" id="kpi-breaches" style="color:var(--red)">—</div></div>
+  </div>
+  <div class="card-full">
+    <div class="card-header"><h3>Risk Limit Monitor</h3></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Account</th><th>Ticker</th><th>Asset Class</th>
+          <th style="text-align:right">Limit</th>
+          <th style="text-align:right">Position</th>
+          <th style="text-align:right">Utilization</th>
+          <th style="min-width:140px">Progress</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody id="tbl-risk"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- Modal: New Transaction -->
+<div class="modal-overlay" id="txn-modal">
+  <div class="modal">
+    <h2>New Trade Entry</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Account</label>
+        <select id="f-account"></select>
+      </div>
+      <div class="form-group">
+        <label>Asset</label>
+        <select id="f-asset"></select>
+      </div>
+      <div class="form-group">
+        <label>Counterparty</label>
+        <select id="f-cp"></select>
+      </div>
+      <div class="form-group">
+        <label>Direction</label>
+        <select id="f-dir"><option value="buy">Buy</option><option value="sell">Sell</option></select>
+      </div>
+      <div class="form-group">
+        <label>Trade Type</label>
+        <select id="f-type">
+          <option value="spot">Spot</option>
+          <option value="futures">Futures</option>
+          <option value="options">Options</option>
+          <option value="bond">Bond</option>
+          <option value="swap">Swap</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Currency</label>
+        <input id="f-ccy" value="USD"/>
+      </div>
+      <div class="form-group">
+        <label>Quantity</label>
+        <input id="f-qty" type="number" min="0" step="any"/>
+      </div>
+      <div class="form-group">
+        <label>Execution Price</label>
+        <input id="f-price" type="number" min="0" step="any"/>
+      </div>
+      <div class="form-group">
+        <label>Traded At</label>
+        <input id="f-time" type="datetime-local"/>
+      </div>
+      <div class="form-group full">
+        <label>Notes</label>
+        <input id="f-notes" placeholder="Optional"/>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeTxnModal()" style="background:var(--border);color:var(--text)">Cancel</button>
+      <button class="btn btn-primary" onclick="submitTxn()">Submit Trade</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+const fmt  = n => n == null ? '—' : Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtN = n => n == null ? '—' : Number(n).toLocaleString('en-US', {maximumFractionDigits:0});
+const pnlClass = v => Number(v) >= 0 ? 'pos' : 'neg';
+
+// ── Clock ──
+setInterval(() => {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+}, 1000);
+
+// ── Page routing ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  event.target.classList.add('active');
+  if (name==='dashboard')    loadDashboard();
+  if (name==='holdings')     loadHoldings();
+  if (name==='transactions') loadTransactions();
+  if (name==='risk')         loadRisk();
+}
+
+// ══ DASHBOARD ══════════════════════════════════
+async function loadDashboard() {
+  const [sum, exp] = await Promise.all([
+    fetch(API+'/api/portfolio/summary').then(r=>r.json()),
+    fetch(API+'/api/exposure').then(r=>r.json()),
+  ]);
+  const t = sum.totals;
+  document.getElementById('kpi-mv').innerHTML   = `<span>$${fmt(t.market_value)}</span>`;
+  document.getElementById('kpi-cost').innerHTML = `<span>$${fmt(t.total_cost)}</span>`;
+  const pc = Number(t.pnl_pct) >= 0;
+  document.getElementById('kpi-pnl').innerHTML  = `<span class="${pnlClass(t.unrealized_pnl)}">$${fmt(t.unrealized_pnl)}</span>`;
+  document.getElementById('kpi-pnl-pct').innerHTML = `<span class="${pnlClass(t.pnl_pct)}">${t.pnl_pct > 0 ? '+' : ''}${t.pnl_pct}%</span>`;
+  document.getElementById('kpi-accts').textContent = sum.accounts.length;
+
+  // Summary table
+  const tbody = document.getElementById('tbl-summary');
+  tbody.innerHTML = sum.accounts.map(a => `
+    <tr>
+      <td><strong>${a.account_name}</strong></td>
+      <td><span class="badge badge-ok" style="background:rgba(88,166,255,.1);color:var(--blue)">${a.account_type}</span></td>
+      <td style="text-align:right">$${fmt(a.total_cost)}</td>
+      <td style="text-align:right">$${fmt(a.market_value)}</td>
+      <td style="text-align:right" class="${pnlClass(a.unrealized_pnl)}">$${fmt(a.unrealized_pnl)}</td>
+      <td style="text-align:right" class="${pnlClass(a.pnl_pct)}">${a.pnl_pct > 0 ? '+' : ''}${a.pnl_pct}%</td>
+    </tr>
+  `).join('');
+
+  // P&L bar chart
+  renderPnlChart(sum.accounts);
+  renderExposureChart(exp);
+}
+
+function renderPnlChart(accounts) {
+  const labels = accounts.map(a => a.account_name.replace(' Fund','').replace(' Desk',''));
+  const values = accounts.map(a => parseFloat(a.unrealized_pnl) || 0);
+  const colors = values.map(v => v >= 0 ? '#3fb950' : '#f85149');
+  document.getElementById('chart-pnl').innerHTML = '';
+  new ApexCharts(document.getElementById('chart-pnl'), {
+    series: [{ name: 'Unrealized P&L', data: values }],
+    chart: { type: 'bar', height: 220, background: 'transparent', toolbar: { show: false } },
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '55%',
+      colors: { ranges: [{ from:-1e9, to:0, color:'#f85149' }, { from:0, to:1e9, color:'#3fb950' }] }
+    }},
+    xaxis: { categories: labels, labels: { style: { colors: '#8b949e', fontSize: '11px' } } },
+    yaxis: { labels: { style: { colors: '#8b949e' }, formatter: v => '$'+fmt(v) } },
+    grid:  { borderColor: '#30363d' },
+    tooltip: { theme: 'dark', y: { formatter: v => '$'+fmt(v) } },
+    theme: { mode: 'dark' },
+  }).render();
+}
+
+function renderExposureChart(exp) {
+  document.getElementById('chart-exposure').innerHTML = '';
+  new ApexCharts(document.getElementById('chart-exposure'), {
+    series: exp.map(e => parseFloat(e.market_value)),
+    labels: exp.map(e => e.asset_class.toUpperCase()),
+    chart: { type: 'donut', height: 220, background: 'transparent' },
+    colors: ['#58a6ff','#3fb950','#d29922','#bc8cff','#f85149','#79c0ff'],
+    dataLabels: { enabled: true, style: { fontSize: '11px' } },
+    legend: { labels: { colors: '#8b949e' }, position: 'bottom' },
+    tooltip: { theme: 'dark', y: { formatter: v => '$'+fmt(v) } },
+    theme: { mode: 'dark' },
+  }).render();
+}
+
+// ══ HOLDINGS ════════════════════════════════════
+async function loadHoldings() {
+  const accountId = document.getElementById('filter-account')?.value || '';
+  const url = accountId ? `/api/holdings?account_id=${accountId}` : '/api/holdings';
+  const rows = await fetch(API+url).then(r=>r.json());
+  const tbody = document.getElementById('tbl-holdings');
+  tbody.innerHTML = rows.map(h => {
+    const mv = (parseFloat(h.net_quantity)*parseFloat(h.current_price)).toFixed(2);
+    return `
+    <tr>
+      <td>${h.account_name}</td>
+      <td><strong style="color:var(--blue)">${h.ticker}</strong></td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${h.asset_name}</td>
+      <td><span style="color:var(--muted)">${h.asset_class}</span></td>
+      <td style="text-align:right">${fmtN(h.net_quantity)}</td>
+      <td style="text-align:right">${fmt(h.avg_cost_price)}</td>
+      <td style="text-align:right">${fmt(h.current_price)}</td>
+      <td style="text-align:right">$${fmt(mv)}</td>
+      <td style="text-align:right" class="${pnlClass(h.unrealized_pnl)}">$${fmt(h.unrealized_pnl)}</td>
+      <td style="text-align:right" class="${pnlClass(h.pnl_pct)}">${h.pnl_pct > 0 ? '+' : ''}${h.pnl_pct}%</td>
+    </tr>`}).join('');
+}
+
+// ══ TRANSACTIONS ═══════════════════════════════
+async function loadTransactions() {
+  const rows = await fetch(API+'/api/transactions').then(r=>r.json());
+  const tbody = document.getElementById('tbl-txn');
+  tbody.innerHTML = rows.map(t => `
+    <tr>
+      <td style="color:var(--muted)">#${t.transaction_id}</td>
+      <td>${t.account_name}</td>
+      <td><strong style="color:var(--blue)">${t.ticker}</strong></td>
+      <td><span class="badge badge-${t.direction}">${t.direction.toUpperCase()}</span></td>
+      <td style="color:var(--muted)">${t.trade_type}</td>
+      <td style="text-align:right">${fmtN(t.quantity)}</td>
+      <td style="text-align:right">${fmt(t.execution_price)}</td>
+      <td style="text-align:right">$${fmt(t.notional)}</td>
+      <td>${t.currency}</td>
+      <td>${t.counterparty}</td>
+      <td><span class="badge ${t.status==='cancelled'?'badge-breach':t.status==='amended'?'badge-alert':'badge-ok'}">${t.status}</span></td>
+      <td style="color:var(--muted)">${new Date(t.traded_at).toLocaleDateString()}</td>
+      <td>
+        ${t.status!=='cancelled'?`<button class="btn btn-danger btn-sm" onclick="cancelTxn(${t.transaction_id})">Cancel</button>`:''}
+      </td>
+    </tr>`).join('');
+}
+
+async function cancelTxn(id) {
+  if (!confirm(`Cancel transaction #${id}?`)) return;
+  await fetch(API+`/api/transactions/${id}`, { method: 'DELETE' });
+  loadTransactions();
+}
+
+// ══ RISK ════════════════════════════════════════
+async function loadRisk() {
+  const rows = await fetch(API+'/api/risk/alerts').then(r=>r.json());
+  document.getElementById('kpi-total-limits').textContent = rows.length;
+  document.getElementById('kpi-alerts').textContent  = rows.filter(r=>r.status==='ALERT').length;
+  document.getElementById('kpi-breaches').textContent = rows.filter(r=>r.status==='BREACH').length;
+  const tbody = document.getElementById('tbl-risk');
+  tbody.innerHTML = rows.map(r => {
+    const pct = Math.min(parseFloat(r.utilization_pct)||0, 100);
+    const color = r.status==='BREACH' ? 'var(--red)' : r.status==='ALERT' ? 'var(--yellow)' : 'var(--green)';
+    return `
+    <tr>
+      <td>${r.account_name}</td>
+      <td style="color:var(--blue)">${r.ticker}</td>
+      <td style="color:var(--muted)">${r.asset_class}</td>
+      <td style="text-align:right">${fmtN(r.max_position)}</td>
+      <td style="text-align:right">${fmtN(r.current_position)}</td>
+      <td style="text-align:right">${r.utilization_pct}%</td>
+      <td style="min-width:140px">
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${color}"></div></div>
+      </td>
+      <td><span class="badge badge-${r.status.toLowerCase()}">${r.status}</span></td>
+    </tr>`}).join('');
+}
+
+// ══ MODAL ═══════════════════════════════════════
+async function openTxnModal() {
+  const [accts, assets, cps] = await Promise.all([
+    fetch(API+'/api/accounts').then(r=>r.json()),
+    fetch(API+'/api/assets').then(r=>r.json()),
+    fetch(API+'/api/counterparties').then(r=>r.json()),
+  ]);
+  document.getElementById('f-account').innerHTML = accts.map(a=>`<option value="${a.account_id}">${a.account_name}</option>`).join('');
+  document.getElementById('f-asset').innerHTML   = assets.map(a=>`<option value="${a.asset_id}">${a.ticker} — ${a.name}</option>`).join('');
+  document.getElementById('f-cp').innerHTML      = cps.map(c=>`<option value="${c.counterparty_id}">${c.name}</option>`).join('');
+  document.getElementById('f-time').value = new Date().toISOString().slice(0,16);
+  document.getElementById('txn-modal').classList.add('open');
+}
+function closeTxnModal() { document.getElementById('txn-modal').classList.remove('open'); }
+
+async function submitTxn() {
+  const body = {
+    account_id:      parseInt(document.getElementById('f-account').value),
+    asset_id:        parseInt(document.getElementById('f-asset').value),
+    counterparty_id: parseInt(document.getElementById('f-cp').value),
+    direction:       document.getElementById('f-dir').value,
+    trade_type:      document.getElementById('f-type').value,
+    currency:        document.getElementById('f-ccy').value,
+    quantity:        parseFloat(document.getElementById('f-qty').value),
+    execution_price: parseFloat(document.getElementById('f-price').value),
+    traded_at:       document.getElementById('f-time').value.replace('T',' ')+':00',
+    notes:           document.getElementById('f-notes').value,
+  };
+  const res = await fetch(API+'/api/transactions', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  if (res.ok) { closeTxnModal(); loadTransactions(); }
+  else { const e = await res.json(); alert('Error: '+(e.detail||'unknown')); }
+}
+
+// ── populate account filter ──
+async function initFilters() {
+  const accts = await fetch(API+'/api/accounts').then(r=>r.json());
+  const sel = document.getElementById('filter-account');
+  accts.forEach(a => sel.innerHTML += `<option value="${a.account_id}">${a.account_name}</option>`);
+}
+
+// ── Init ──
+loadDashboard();
+initFilters();
+</script>
+</body>
+</html>
