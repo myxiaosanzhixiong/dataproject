@@ -33,7 +33,7 @@ services:
       DB_PASSWORD: traderpass123
       DB_NAME: portfolio_mgmt
     ports:
-      - "8000:8000"
+      - "80:8000"
     depends_on:
       mysql:
         condition: service_healthy
