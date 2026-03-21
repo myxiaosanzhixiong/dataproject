@@ -239,11 +239,44 @@ def _refresh_holding(account_id: int, asset_id: int):
 # ══════════════════════════════════════════════════════════════
 @app.get("/api/accounts")
 def get_accounts():
-    return query("SELECT account_id, account_name, account_type, base_currency FROM Accounts WHERE status='active'")
+    return query("SELECT account_id, account_name, account_type, base_currency, status FROM Accounts WHERE status='active'")
+
+@app.post("/api/accounts")
+def create_account(body: dict):
+    required = ["account_name", "account_type", "base_currency", "trader_id"]
+    for f in required:
+        if f not in body:
+            raise HTTPException(400, f"Missing field: {f}")
+    lid = execute("""
+        INSERT INTO Accounts (account_name, account_type, base_currency, trader_id)
+        VALUES (%s, %s, %s, %s)
+    """, (body["account_name"], body["account_type"], body["base_currency"], body["trader_id"]))
+    return {"account_id": lid}
+
+@app.delete("/api/accounts/{account_id}")
+def deactivate_account(account_id: int):
+    rows = query("SELECT * FROM Accounts WHERE account_id=%s", (account_id,))
+    if not rows:
+        raise HTTPException(404, "Account not found")
+    execute("UPDATE Accounts SET status='closed' WHERE account_id=%s", (account_id,))
+    return {"closed": account_id}
 
 @app.get("/api/assets")
 def get_assets():
-    return query("SELECT asset_id, ticker, name, asset_class, market, currency, last_price FROM Assets WHERE status='active' ORDER BY ticker")
+    return query("SELECT asset_id, ticker, name, asset_class, market, currency, last_price, status FROM Assets WHERE status='active' ORDER BY ticker")
+
+@app.post("/api/assets")
+def create_asset(body: dict):
+    required = ["ticker", "name", "asset_class", "market", "currency"]
+    for f in required:
+        if f not in body:
+            raise HTTPException(400, f"Missing field: {f}")
+    lid = execute("""
+        INSERT INTO Assets (ticker, name, asset_class, market, currency, last_price, price_updated_at)
+        VALUES (%s, %s, %s, %s, %s, %s, NOW())
+    """, (body["ticker"], body["name"], body["asset_class"], body["market"],
+          body["currency"], body.get("last_price", 0)))
+    return {"asset_id": lid}
 
 @app.patch("/api/assets/{asset_id}/price")
 def update_price(asset_id: int, body: dict):
@@ -253,13 +286,88 @@ def update_price(asset_id: int, body: dict):
             (body["last_price"], asset_id))
     return {"updated": asset_id}
 
+@app.delete("/api/assets/{asset_id}")
+def delist_asset(asset_id: int):
+    rows = query("SELECT * FROM Assets WHERE asset_id=%s", (asset_id,))
+    if not rows:
+        raise HTTPException(404, "Asset not found")
+    execute("UPDATE Assets SET status='delisted' WHERE asset_id=%s", (asset_id,))
+    return {"delisted": asset_id}
+
 @app.get("/api/counterparties")
 def get_counterparties():
     return query("SELECT * FROM Counterparties WHERE status='active' ORDER BY name")
 
+@app.post("/api/counterparties")
+def create_counterparty(body: dict):
+    required = ["name", "type"]
+    for f in required:
+        if f not in body:
+            raise HTTPException(400, f"Missing field: {f}")
+    lid = execute("""
+        INSERT INTO Counterparties (name, type, country, credit_rating)
+        VALUES (%s, %s, %s, %s)
+    """, (body["name"], body["type"], body.get("country", ""), body.get("credit_rating", "")))
+    return {"counterparty_id": lid}
+
+@app.delete("/api/counterparties/{cp_id}")
+def deactivate_counterparty(cp_id: int):
+    rows = query("SELECT * FROM Counterparties WHERE counterparty_id=%s", (cp_id,))
+    if not rows:
+        raise HTTPException(404, "Counterparty not found")
+    execute("UPDATE Counterparties SET status='inactive' WHERE counterparty_id=%s", (cp_id,))
+    return {"deactivated": cp_id}
+
 @app.get("/api/traders")
 def get_traders():
     return query("SELECT trader_id, name, email, role, status FROM Traders ORDER BY name")
+
+# ══════════════════════════════════════════════════════════════
+# RISK LIMITS CRUD
+# ══════════════════════════════════════════════════════════════
+@app.get("/api/risk-limits")
+def get_risk_limits():
+    return query("""
+        SELECT rl.limit_id, a.account_name, COALESCE(ast.ticker,'— ALL —') AS ticker,
+               COALESCE(rl.asset_class,'— ALL —') AS asset_class,
+               rl.max_position, rl.max_concentration, rl.alert_threshold, rl.is_active
+        FROM Risk_Limits rl
+        JOIN Accounts a ON a.account_id = rl.account_id
+        LEFT JOIN Assets ast ON ast.asset_id = rl.asset_id
+        ORDER BY a.account_name, ticker
+    """)
+
+@app.post("/api/risk-limits")
+def create_risk_limit(body: dict):
+    if "account_id" not in body or "max_position" not in body:
+        raise HTTPException(400, "account_id and max_position required")
+    lid = execute("""
+        INSERT INTO Risk_Limits (account_id, asset_id, asset_class, max_position, max_concentration, alert_threshold)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (body["account_id"], body.get("asset_id"), body.get("asset_class"),
+          body["max_position"], body.get("max_concentration"), body.get("alert_threshold", 80)))
+    return {"limit_id": lid}
+
+@app.patch("/api/risk-limits/{limit_id}")
+def update_risk_limit(limit_id: int, body: dict):
+    rows = query("SELECT * FROM Risk_Limits WHERE limit_id=%s", (limit_id,))
+    if not rows:
+        raise HTTPException(404, "Risk limit not found")
+    allowed = {"max_position", "max_concentration", "alert_threshold", "is_active"}
+    updates = {k: v for k, v in body.items() if k in allowed}
+    if not updates:
+        raise HTTPException(400, "No updatable fields provided")
+    set_clause = ", ".join(f"{k}=%s" for k in updates)
+    execute(f"UPDATE Risk_Limits SET {set_clause} WHERE limit_id=%s", (*updates.values(), limit_id))
+    return {"updated": limit_id}
+
+@app.delete("/api/risk-limits/{limit_id}")
+def delete_risk_limit(limit_id: int):
+    rows = query("SELECT * FROM Risk_Limits WHERE limit_id=%s", (limit_id,))
+    if not rows:
+        raise HTTPException(404, "Risk limit not found")
+    execute("UPDATE Risk_Limits SET is_active=FALSE WHERE limit_id=%s", (limit_id,))
+    return {"deactivated": limit_id}
 
 # ══════════════════════════════════════════════════════════════
 # REALIZED P&L
