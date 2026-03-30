@@ -28,6 +28,8 @@
   /* Layout */
   main{padding:24px;max-width:1440px;margin:0 auto;}
   .page{display:none;} .page.active{display:block;}
+  #page-trading{position:fixed;top:56px;left:0;right:0;bottom:0;z-index:10;display:none;}
+  #page-trading.active{display:block;}
 
   /* KPI */
   .kpi-row{display:grid;gap:16px;margin-bottom:24px;}
@@ -112,9 +114,113 @@
     .kpi-4,.kpi-3{grid-template-columns:1fr 1fr;}
     .grid2{grid-template-columns:1fr;}
   }
+
+  /* ── Trading Layout ─────────────────────────── */
+  .trading-wrap{display:grid;grid-template-columns:220px 1fr 300px;gap:0;height:calc(100vh - 56px);overflow:hidden;}
+  .watchlist-panel{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+  .watchlist-search{padding:10px;border-bottom:1px solid var(--border);}
+  .watchlist-search input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+    padding:6px 10px;color:var(--text);font-size:12px;outline:none;}
+  .watchlist-search input:focus{border-color:var(--accent);}
+  .watchlist-list{overflow-y:auto;flex:1;}
+  .watch-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(48,54,61,.4);transition:background .1s;display:flex;justify-content:space-between;align-items:center;}
+  .watch-item:hover{background:var(--surface2);}
+  .watch-item.active{background:rgba(31,111,235,.15);border-left:2px solid var(--accent);}
+  .watch-ticker{font-weight:700;font-size:13px;color:var(--text);}
+  .watch-name{font-size:10px;color:var(--muted);margin-top:1px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .watch-price{text-align:right;}
+  .watch-last{font-size:13px;font-weight:600;}
+  .watch-chg{font-size:11px;margin-top:1px;}
+
+  .chart-panel{display:flex;flex-direction:column;background:var(--bg);overflow:hidden;}
+  .chart-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .chart-ticker{font-size:20px;font-weight:800;color:var(--text);}
+  .chart-price{font-size:24px;font-weight:700;}
+  .chart-meta{font-size:12px;color:var(--muted);}
+  .period-btns{display:flex;gap:4px;margin-left:auto;}
+  .period-btn{padding:4px 10px;border-radius:5px;border:none;background:transparent;color:var(--muted);font-size:12px;cursor:pointer;transition:all .15s;}
+  .period-btn:hover{color:var(--text);background:var(--surface2);}
+  .period-btn.active{background:var(--accent);color:#fff;}
+  #trading-chart{flex:1;min-height:0;}
+
+  .order-panel{background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+  .order-header{padding:16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;color:var(--text);}
+  .order-body{padding:16px;display:flex;flex-direction:column;gap:12px;}
+  .dir-toggle{display:grid;grid-template-columns:1fr 1fr;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+  .dir-btn{padding:10px;text-align:center;cursor:pointer;font-weight:700;font-size:13px;transition:all .15s;border:none;background:transparent;color:var(--muted);}
+  .dir-btn.buy.active{background:rgba(63,185,80,.2);color:var(--green);}
+  .dir-btn.sell.active{background:rgba(248,81,73,.2);color:var(--red);}
+  .dir-btn:hover{opacity:.8;}
+  .order-field{display:flex;flex-direction:column;gap:5px;}
+  .order-field label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .order-field select,.order-field input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+    padding:8px 10px;color:var(--text);font-size:13px;outline:none;transition:border-color .15s;}
+  .order-field select:focus,.order-field input:focus{border-color:var(--accent);}
+  .order-submit{padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;width:100%;margin-top:4px;transition:opacity .15s;}
+  .order-submit:hover{opacity:.85;}
+  .order-submit.buy-submit{background:var(--green);color:#000;}
+  .order-submit.sell-submit{background:var(--red);color:#fff;}
+  .order-divider{border:none;border-top:1px solid var(--border);margin:4px 0;}
+  .notional-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:4px 0;}
+  .notional-row span:last-child{color:var(--text);font-weight:600;}
+  .recent-trades-hdr{padding:12px 16px;border-top:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;}
+  .recent-trade-row{display:grid;grid-template-columns:1fr 1fr 1fr;padding:6px 16px;font-size:11px;border-bottom:1px solid rgba(48,54,61,.3);}
+
+  /* Login */
+  #login-screen{position:fixed;inset:0;background:var(--bg);z-index:999;
+    display:flex;align-items:center;justify-content:center;}
+  #login-screen.hidden{display:none;}
+  .login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:40px 36px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .login-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;justify-content:center;}
+  .login-logo svg{width:28px;height:28px;color:var(--blue);}
+  .login-logo span{font-size:18px;font-weight:700;color:var(--blue);}
+  .login-box h2{font-size:15px;font-weight:600;color:var(--text);text-align:center;margin-bottom:6px;}
+  .login-box p{font-size:12px;color:var(--muted);text-align:center;margin-bottom:28px;}
+  .login-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+  .login-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .login-field input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+    padding:10px 12px;color:var(--text);font-size:14px;outline:none;transition:border-color .15s;}
+  .login-field input:focus{border-color:var(--accent);}
+  #login-btn{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;
+    border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;transition:opacity .15s;}
+  #login-btn:hover{opacity:.85;}
+  #login-error{color:var(--red);font-size:12px;text-align:center;margin-top:12px;min-height:18px;}
+
+  /* Nav user info */
+  .nav-user{display:flex;align-items:center;gap:12px;margin-left:auto;}
+  .nav-user-name{font-size:12px;color:var(--muted);}
+  .nav-user-name strong{color:var(--text);}
+  .btn-logout{padding:5px 12px;background:rgba(248,81,73,.12);color:var(--red);
+    border:1px solid rgba(248,81,73,.3);border-radius:6px;font-size:12px;cursor:pointer;transition:opacity .15s;}
+  .btn-logout:hover{opacity:.75;}
 </style>
 </head>
 <body>
+
+<!-- ════════ LOGIN SCREEN ════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+      </svg>
+      <span>Portfolio MS</span>
+    </div>
+    <h2>Welcome Back</h2>
+    <p>Sign in to continue to Portfolio MS</p>
+    <div class="login-field">
+      <label>Username</label>
+      <input id="login-username" type="text" placeholder="Enter your username" autocomplete="username"/>
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input id="login-password" type="password" placeholder="Enter your password" autocomplete="current-password"/>
+    </div>
+    <button id="login-btn" onclick="doLogin()">Sign In</button>
+    <div id="login-error"></div>
+  </div>
+</div>
 
 <nav>
   <div class="nav-brand">
@@ -128,9 +234,14 @@
     <button class="tab"         onclick="showPage('holdings',this)">Holdings</button>
     <button class="tab"         onclick="showPage('transactions',this)">Transactions</button>
     <button class="tab"         onclick="showPage('risk',this)">Risk</button>
+    <button class="tab"         onclick="showPage('trading',this)">Trading</button>
     <button class="tab"         onclick="showPage('masterdata',this)">Master Data</button>
   </div>
-  <div class="nav-time" id="clock"></div>
+  <div class="nav-user">
+    <span class="nav-time" id="clock"></span>
+    <span class="nav-user-name">Logged in as: <strong id="nav-username">—</strong></span>
+    <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+  </div>
 </nav>
 
 <main>
@@ -244,6 +355,7 @@
     <button class="sub-tab"        onclick="showSubTab('counterparties',this)">Counterparties</button>
     <button class="sub-tab"        onclick="showSubTab('accounts',this)">Accounts</button>
     <button class="sub-tab"        onclick="showSubTab('traders',this)">Traders</button>
+    <button class="sub-tab"        onclick="showSubTab('users',this)">Users</button>
   </div>
 
   <!-- Assets -->
@@ -305,11 +417,155 @@
       </table></div>
     </div>
   </div>
+
+  <!-- Users -->
+  <div id="sub-users" style="display:none">
+    <div class="card-full">
+      <div class="card-header">
+        <h3>System Users</h3>
+        <button class="btn btn-primary" onclick="openModal('user-modal')">+ Add User</button>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Created At</th><th></th></tr></thead>
+        <tbody id="tbl-users"></tbody>
+      </table></div>
+    </div>
+  </div>
 </div>
 
 </main>
 
+<!-- ════════ TRADING PAGE (outside main, full-height) ════════ -->
+<div id="page-trading" class="page" style="padding:0">
+  <div class="trading-wrap">
+
+    <!-- Left: Watchlist -->
+    <div class="watchlist-panel">
+      <div class="watchlist-search">
+        <input id="watch-search" placeholder="Search symbol..." oninput="filterWatchlist(this.value)"/>
+      </div>
+      <div class="watchlist-list" id="watchlist-items"></div>
+    </div>
+
+    <!-- Center: Chart -->
+    <div class="chart-panel">
+      <div class="chart-header">
+        <div>
+          <div class="chart-ticker" id="ct-ticker">—</div>
+          <div class="chart-meta" id="ct-name" style="color:var(--muted)"></div>
+        </div>
+        <div>
+          <div class="chart-price" id="ct-price">—</div>
+          <div class="chart-meta" id="ct-change"></div>
+        </div>
+        <div class="chart-meta" id="ct-meta"></div>
+        <div class="period-btns">
+          <button class="period-btn" onclick="setPeriod('1d',this)">1D</button>
+          <button class="period-btn" onclick="setPeriod('1w',this)">1W</button>
+          <button class="period-btn active" onclick="setPeriod('1m',this)">1M</button>
+          <button class="period-btn" onclick="setPeriod('3m',this)">3M</button>
+          <button class="period-btn" onclick="setPeriod('1y',this)">1Y</button>
+        </div>
+      </div>
+      <div id="trading-chart"></div>
+    </div>
+
+    <!-- Right: Order Entry -->
+    <div class="order-panel">
+      <div class="order-header">Order Entry</div>
+      <div class="order-body">
+        <div class="dir-toggle">
+          <button class="dir-btn buy active" id="btn-buy" onclick="setDir('buy')">BUY</button>
+          <button class="dir-btn sell" id="btn-sell" onclick="setDir('sell')">SELL</button>
+        </div>
+        <div class="order-field">
+          <label>Symbol</label>
+          <input id="o-ticker" disabled style="opacity:.6"/>
+        </div>
+        <div class="order-field">
+          <label>Account</label>
+          <select id="o-account"></select>
+        </div>
+        <div class="order-field">
+          <label>Counterparty</label>
+          <select id="o-cp"></select>
+        </div>
+        <div class="order-field">
+          <label>Trade Type</label>
+          <select id="o-type">
+            <option value="market">Market</option>
+            <option value="limit">Limit</option>
+            <option value="spot">Spot</option>
+          </select>
+        </div>
+        <div class="order-field">
+          <label>Quantity</label>
+          <input id="o-qty" type="number" min="1" step="1" placeholder="0" oninput="updateNotional()"/>
+        </div>
+        <div class="order-field">
+          <label>Price</label>
+          <input id="o-price" type="number" step="any" placeholder="0.00" oninput="updateNotional()"/>
+        </div>
+        <hr class="order-divider"/>
+        <div class="notional-row"><span>Notional Value</span><span id="o-notional">—</span></div>
+        <div class="notional-row"><span>Currency</span><span id="o-ccy">—</span></div>
+        <button class="order-submit buy-submit" id="order-submit-btn" onclick="submitOrder()">Place BUY Order</button>
+        <div id="order-msg" style="font-size:12px;text-align:center;min-height:16px"></div>
+      </div>
+
+      <div class="recent-trades-hdr">Recent Trades</div>
+      <div id="recent-trades-list"></div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ══════════════ MODALS ══════════════ -->
+
+<!-- Add User -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal">
+    <h2>Add System User</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>Username</label><input id="u-username" placeholder="e.g. jsmith"/></div>
+      <div class="form-group"><label>Role</label>
+        <select id="u-role">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Password</label><input id="u-password" type="password" placeholder="Set password"/></div>
+      <div class="form-group"><label>Confirm Password</label><input id="u-password2" type="password" placeholder="Confirm password"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('user-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User (reset password / change role) -->
+<div class="modal-overlay" id="user-edit-modal">
+  <div class="modal">
+    <h2>Edit User</h2>
+    <input type="hidden" id="ue-id"/>
+    <div class="form-grid">
+      <div class="form-group full"><label>Username</label><input id="ue-username" disabled style="opacity:.5"/></div>
+      <div class="form-group"><label>Role</label>
+        <select id="ue-role">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="form-group"><label>New Password <span style="color:var(--muted);font-size:10px">(leave blank to keep)</span></label>
+        <input id="ue-password" type="password" placeholder="New password (optional)"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('user-edit-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitEditUser()">Save Changes</button>
+    </div>
+  </div>
+</div>
 
 <!-- New Transaction -->
 <div class="modal-overlay" id="txn-modal">
@@ -453,8 +709,76 @@ const fmt  = n => n==null?'—':Number(n).toLocaleString('en-US',{minimumFractio
 const fmtN = n => n==null?'—':Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
 const pnlCls = v => Number(v)>=0?'pos':'neg';
 
+// ── Auth helpers ─────────────────────────────────────────────
+function getToken(){ return localStorage.getItem('pm_token'); }
+function setToken(t){ localStorage.setItem('pm_token', t); }
+function clearToken(){ localStorage.removeItem('pm_token'); localStorage.removeItem('pm_user'); }
+
+async function authFetch(url, opts={}){
+  const token = getToken();
+  opts.headers = {...(opts.headers||{}), 'Authorization': `Bearer ${token}`};
+  const res = await fetch(url, opts);
+  if(res.status === 401){ doLogout(); return res; }
+  return res;
+}
+
+async function doLogin(){
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  if(!username||!password){ errEl.textContent='Please enter username and password'; return; }
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try{
+    const res = await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username,password})});
+    const data = await res.json();
+    if(!res.ok){ errEl.textContent = data.detail||'Login failed'; return; }
+    setToken(data.access_token);
+    localStorage.setItem('pm_user', data.username);
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('nav-username').textContent = data.username;
+    loadDashboard();
+    initFilters();
+  }catch(e){ errEl.textContent='Network error, please try again'; }
+  finally{ btn.disabled=false; btn.textContent='登 录'; }
+}
+
+function doLogout(){
+  clearToken();
+  document.getElementById('nav-username').textContent='—';
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-password').value='';
+  document.getElementById('login-error').textContent='';
+}
+
+// Enter key to login
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !document.getElementById('login-screen').classList.contains('hidden')) doLogin();
+});
+
 // Clock
 setInterval(()=>{ document.getElementById('clock').textContent = new Date().toLocaleTimeString(); },1000);
+
+// Check existing token on load
+window.addEventListener('load', async ()=>{
+  const token = getToken();
+  if(token){
+    try{
+      const res = await authFetch('/api/me');
+      if(res.ok){
+        const data = await res.json();
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('nav-username').textContent = data.username;
+        loadDashboard(); initFilters();
+        return;
+      }
+    }catch(_){}
+  }
+  // Show login
+  document.getElementById('login-screen').classList.remove('hidden');
+});
 
 // Modal helpers
 function openModal(id){ document.getElementById(id).classList.add('open'); }
@@ -470,12 +794,13 @@ function showPage(name, btn){
   if(name==='holdings')    loadHoldings();
   if(name==='transactions')loadTransactions();
   if(name==='risk')        loadRisk();
+  if(name==='trading')     loadTrading();
   if(name==='masterdata')  loadSubTab('assets');
 }
 
 // Sub-tab routing
 function showSubTab(name, btn){
-  ['assets','counterparties','accounts','traders'].forEach(t=>{
+  ['assets','counterparties','accounts','traders','users'].forEach(t=>{
     document.getElementById('sub-'+t).style.display = t===name?'block':'none';
   });
   document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));
@@ -487,13 +812,14 @@ function loadSubTab(name){
   if(name==='counterparties')loadMDCPs();
   if(name==='accounts')      loadMDAccounts();
   if(name==='traders')       loadMDTraders();
+  if(name==='users')         loadMDUsers();
 }
 
 // ══ DASHBOARD ══════════════════════════════
 async function loadDashboard(){
   const [sum, exp] = await Promise.all([
-    fetch(API+'/api/portfolio/summary').then(r=>r.json()),
-    fetch(API+'/api/exposure').then(r=>r.json()),
+    authFetch(API+'/api/portfolio/summary').then(r=>r.json()),
+    authFetch(API+'/api/exposure').then(r=>r.json()),
   ]);
   const t = sum.totals;
   document.getElementById('kpi-mv').innerHTML   = `$${fmt(t.market_value)}`;
@@ -547,7 +873,7 @@ function renderExposureChart(exp){
 // ══ HOLDINGS ════════════════════════════════
 async function loadHoldings(){
   const aid = document.getElementById('filter-account')?.value||'';
-  const rows = await fetch(API+(aid?`/api/holdings?account_id=${aid}`:'/api/holdings')).then(r=>r.json());
+  const rows = await authFetch(API+(aid?`/api/holdings?account_id=${aid}`:'/api/holdings')).then(r=>r.json());
   document.getElementById('tbl-holdings').innerHTML = rows.map(h=>{
     const mv = (parseFloat(h.net_quantity)*parseFloat(h.current_price)).toFixed(2);
     return `<tr>
@@ -568,7 +894,7 @@ async function loadHoldings(){
 async function loadTransactions(){
   const aid = document.getElementById('filter-txn-account')?.value||'';
   const url = aid?`/api/transactions?account_id=${aid}`:'/api/transactions';
-  const rows = await fetch(API+url).then(r=>r.json());
+  const rows = await authFetch(API+url).then(r=>r.json());
   document.getElementById('tbl-txn').innerHTML = rows.map(t=>`
     <tr>
       <td style="color:var(--muted)">#${t.transaction_id}</td>
@@ -588,15 +914,15 @@ async function loadTransactions(){
 
 async function cancelTxn(id){
   if(!confirm(`Cancel transaction #${id}?`))return;
-  await fetch(API+`/api/transactions/${id}`,{method:'DELETE'});
+  await authFetch(API+`/api/transactions/${id}`,{method:'DELETE'});
   loadTransactions();
 }
 
 async function openModal_Txn(){
   const [accts,assets,cps]=await Promise.all([
-    fetch(API+'/api/accounts').then(r=>r.json()),
-    fetch(API+'/api/assets').then(r=>r.json()),
-    fetch(API+'/api/counterparties').then(r=>r.json()),
+    authFetch(API+'/api/accounts').then(r=>r.json()),
+    authFetch(API+'/api/assets').then(r=>r.json()),
+    authFetch(API+'/api/counterparties').then(r=>r.json()),
   ]);
   document.getElementById('f-account').innerHTML=accts.map(a=>`<option value="${a.account_id}">${a.account_name}</option>`).join('');
   document.getElementById('f-asset').innerHTML=assets.map(a=>`<option value="${a.asset_id}">${a.ticker} — ${a.name}</option>`).join('');
@@ -618,14 +944,14 @@ async function submitTxn(){
     traded_at:document.getElementById('f-time').value.replace('T',' ')+':00',
     notes:document.getElementById('f-notes').value,
   };
-  const res=await fetch(API+'/api/transactions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const res=await authFetch(API+'/api/transactions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(res.ok){closeModal('txn-modal');loadTransactions();}
   else{const e=await res.json();alert('Error: '+(e.detail||'unknown'));}
 }
 
 // ══ RISK ════════════════════════════════════
 async function loadRisk(){
-  const rows=await fetch(API+'/api/risk/alerts').then(r=>r.json());
+  const rows=await authFetch(API+'/api/risk/alerts').then(r=>r.json());
   document.getElementById('kpi-total-limits').textContent=rows.length;
   document.getElementById('kpi-alerts').textContent=rows.filter(r=>r.status==='ALERT').length;
   document.getElementById('kpi-breaches').textContent=rows.filter(r=>r.status==='BREACH').length;
@@ -657,8 +983,8 @@ async function loadRisk(){
 
 async function openModal_Risk(){
   const [accts,assets]=await Promise.all([
-    fetch(API+'/api/accounts').then(r=>r.json()),
-    fetch(API+'/api/assets').then(r=>r.json()),
+    authFetch(API+'/api/accounts').then(r=>r.json()),
+    authFetch(API+'/api/assets').then(r=>r.json()),
   ]);
   document.getElementById('rl-account').innerHTML=accts.map(a=>`<option value="${a.account_id}">${a.account_name}</option>`).join('');
   document.getElementById('rl-asset').innerHTML='<option value="">— All Assets —</option>'+assets.map(a=>`<option value="${a.asset_id}">${a.ticker}</option>`).join('');
@@ -674,7 +1000,7 @@ async function submitRiskLimit(){
     max_concentration:document.getElementById('rl-conc').value||null,
     alert_threshold:parseFloat(document.getElementById('rl-alert').value)||80,
   };
-  const res=await fetch(API+'/api/risk-limits',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const res=await authFetch(API+'/api/risk-limits',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(res.ok){closeModal('risk-modal');loadRisk();}
   else{const e=await res.json();alert('Error: '+(e.detail||'unknown'));}
 }
@@ -695,20 +1021,20 @@ async function submitEditRiskLimit(){
   };
   const conc=document.getElementById('rl-edit-conc').value;
   if(conc) body.max_concentration=parseFloat(conc);
-  await fetch(API+`/api/risk-limits/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  await authFetch(API+`/api/risk-limits/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   closeModal('risk-edit-modal');
   loadRisk();
 }
 
 async function deactivateLimit(id){
   if(!confirm('Deactivate this risk limit?'))return;
-  await fetch(API+`/api/risk-limits/${id}`,{method:'DELETE'});
+  await authFetch(API+`/api/risk-limits/${id}`,{method:'DELETE'});
   loadRisk();
 }
 
 // ══ MASTER DATA ═════════════════════════════
 async function loadMDAssets(){
-  const rows=await fetch(API+'/api/assets').then(r=>r.json());
+  const rows=await authFetch(API+'/api/assets').then(r=>r.json());
   document.getElementById('tbl-assets').innerHTML=rows.map(a=>`
     <tr>
       <td><strong style="color:var(--blue)">${a.ticker}</strong></td>
@@ -729,19 +1055,19 @@ async function submitAsset(){
     currency:document.getElementById('a-ccy').value,
     last_price:parseFloat(document.getElementById('a-price').value)||0,
   };
-  const res=await fetch(API+'/api/assets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const res=await authFetch(API+'/api/assets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(res.ok){closeModal('asset-modal');loadMDAssets();}
   else{const e=await res.json();alert('Error: '+(e.detail||'unknown'));}
 }
 
 async function delistAsset(id){
   if(!confirm('Delist this asset?'))return;
-  await fetch(API+`/api/assets/${id}`,{method:'DELETE'});
+  await authFetch(API+`/api/assets/${id}`,{method:'DELETE'});
   loadMDAssets();
 }
 
 async function loadMDCPs(){
-  const rows=await fetch(API+'/api/counterparties').then(r=>r.json());
+  const rows=await authFetch(API+'/api/counterparties').then(r=>r.json());
   document.getElementById('tbl-cps').innerHTML=rows.map(c=>`
     <tr>
       <td><strong>${c.name}</strong></td>
@@ -758,21 +1084,21 @@ async function submitCp(){
     country:document.getElementById('cp-country').value,
     credit_rating:document.getElementById('cp-rating').value,
   };
-  const res=await fetch(API+'/api/counterparties',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const res=await authFetch(API+'/api/counterparties',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(res.ok){closeModal('cp-modal');loadMDCPs();}
   else{const e=await res.json();alert('Error: '+(e.detail||'unknown'));}
 }
 
 async function deactivateCp(id){
   if(!confirm('Deactivate this counterparty?'))return;
-  await fetch(API+`/api/counterparties/${id}`,{method:'DELETE'});
+  await authFetch(API+`/api/counterparties/${id}`,{method:'DELETE'});
   loadMDCPs();
 }
 
 async function loadMDAccounts(){
   const [accts,traders]=await Promise.all([
-    fetch(API+'/api/accounts').then(r=>r.json()),
-    fetch(API+'/api/traders').then(r=>r.json()),
+    authFetch(API+'/api/accounts').then(r=>r.json()),
+    authFetch(API+'/api/traders').then(r=>r.json()),
   ]);
   const traderMap=Object.fromEntries(traders.map(t=>[t.trader_id,t.name]));
   document.getElementById('tbl-accounts-md').innerHTML=accts.map(a=>`
@@ -794,19 +1120,19 @@ async function submitAccount(){
     base_currency:document.getElementById('ac-ccy').value,
     trader_id:parseInt(document.getElementById('ac-trader').value),
   };
-  const res=await fetch(API+'/api/accounts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const res=await authFetch(API+'/api/accounts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(res.ok){closeModal('account-modal');loadMDAccounts();}
   else{const e=await res.json();alert('Error: '+(e.detail||'unknown'));}
 }
 
 async function closeAccount(id){
   if(!confirm('Close this account?'))return;
-  await fetch(API+`/api/accounts/${id}`,{method:'DELETE'});
+  await authFetch(API+`/api/accounts/${id}`,{method:'DELETE'});
   loadMDAccounts();
 }
 
 async function loadMDTraders(){
-  const rows=await fetch(API+'/api/traders').then(r=>r.json());
+  const rows=await authFetch(API+'/api/traders').then(r=>r.json());
   document.getElementById('tbl-traders').innerHTML=rows.map(t=>`
     <tr>
       <td><strong>${t.name}</strong></td><td style="color:var(--muted)">${t.email}</td>
@@ -815,9 +1141,71 @@ async function loadMDTraders(){
     </tr>`).join('');
 }
 
+// ══ USERS ═══════════════════════════════════
+async function loadMDUsers(){
+  const rows = await authFetch(API+'/api/users').then(r=>r.json());
+  const me = localStorage.getItem('pm_user');
+  document.getElementById('tbl-users').innerHTML = rows.map(u=>`
+    <tr>
+      <td style="color:var(--muted)">#${u.user_id}</td>
+      <td><strong>${u.username}</strong>${u.username===me?' <span style="color:var(--blue);font-size:11px">(you)</span>':''}</td>
+      <td><span class="badge badge-info">${u.role}</span></td>
+      <td style="color:var(--muted)">${new Date(u.created_at).toLocaleDateString()}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-warning btn-sm" onclick="openEditUser(${u.user_id},'${u.username}','${u.role}')">Edit</button>
+        ${u.username!=='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.user_id},'${u.username}')">Delete</button>`:'—'}
+      </td>
+    </tr>`).join('');
+}
+
+async function submitUser(){
+  const username = document.getElementById('u-username').value.trim();
+  const password = document.getElementById('u-password').value;
+  const password2= document.getElementById('u-password2').value;
+  const role     = document.getElementById('u-role').value;
+  if(!username||!password){ alert('Username and password are required'); return; }
+  if(password !== password2){ alert('Passwords do not match'); return; }
+  const res = await authFetch(API+'/api/users',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({username,password,role})});
+  if(res.ok){
+    closeModal('user-modal');
+    document.getElementById('u-username').value='';
+    document.getElementById('u-password').value='';
+    document.getElementById('u-password2').value='';
+    loadMDUsers();
+  } else { const e=await res.json(); alert('Error: '+(e.detail||'unknown')); }
+}
+
+function openEditUser(id, username, role){
+  document.getElementById('ue-id').value = id;
+  document.getElementById('ue-username').value = username;
+  document.getElementById('ue-role').value = role;
+  document.getElementById('ue-password').value = '';
+  openModal('user-edit-modal');
+}
+
+async function submitEditUser(){
+  const id = document.getElementById('ue-id').value;
+  const body = { role: document.getElementById('ue-role').value };
+  const pw = document.getElementById('ue-password').value;
+  if(pw) body.password = pw;
+  const res = await authFetch(API+`/api/users/${id}`,{method:'PATCH',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  if(res.ok){ closeModal('user-edit-modal'); loadMDUsers(); }
+  else { const e=await res.json(); alert('Error: '+(e.detail||'unknown')); }
+}
+
+async function deleteUser(id, username){
+  if(!confirm(`Delete user "${username}"? This cannot be undone.`)) return;
+  const res = await authFetch(API+`/api/users/${id}`,{method:'DELETE'});
+  if(res.ok) loadMDUsers();
+  else { const e=await res.json(); alert('Error: '+(e.detail||'unknown')); }
+}
+
 // ══ INIT ═══════════════════════════════════
 async function initFilters(){
-  const accts=await fetch(API+'/api/accounts').then(r=>r.json());
+  const accts=await authFetch(API+'/api/accounts').then(r=>r.json());
   ['filter-account','filter-txn-account'].forEach(id=>{
     const sel=document.getElementById(id);
     accts.forEach(a=>sel.innerHTML+=`<option value="${a.account_id}">${a.account_name}</option>`);
@@ -829,6 +1217,233 @@ document.getElementById('txn-modal').closest('.modal-overlay');
 // patch the + New Trade button
 document.querySelector('[onclick="openModal(\'txn-modal\')"]')?.setAttribute('onclick','openModal_Txn()');
 document.querySelector('[onclick="openModal(\'risk-modal\')"]')?.setAttribute('onclick','openModal_Risk()');
+
+// ══ TRADING ═════════════════════════════════
+let _tradingChart = null;
+let _currentTicker = null;
+let _currentPeriod = '1m';
+let _currentAssetId = null;
+let _watchAll = [];
+
+async function loadTrading(){
+  // Load watchlist
+  const [wl, accts, cps] = await Promise.all([
+    authFetch(API+'/api/watchlist').then(r=>r.json()),
+    authFetch(API+'/api/accounts').then(r=>r.json()),
+    authFetch(API+'/api/counterparties').then(r=>r.json()),
+  ]);
+  _watchAll = wl;
+  renderWatchlist(wl);
+
+  // Populate order selects
+  document.getElementById('o-account').innerHTML = accts.map(a=>`<option value="${a.account_id}">${a.account_name}</option>`).join('');
+  document.getElementById('o-cp').innerHTML = cps.map(c=>`<option value="${c.counterparty_id}">${c.name}</option>`).join('');
+
+  // Select first ticker
+  if(wl.length) selectTicker(wl[0].ticker, wl[0].asset_id||null);
+}
+
+function renderWatchlist(items){
+  document.getElementById('watchlist-items').innerHTML = items.map(a=>{
+    const up = a.change_pct >= 0;
+    const cls = up ? 'pos' : 'neg';
+    const arrow = up ? '▲' : '▼';
+    return `<div class="watch-item${_currentTicker===a.ticker?' active':''}" onclick="selectTicker('${a.ticker}',${a.asset_id})">
+      <div><div class="watch-ticker">${a.ticker}</div><div class="watch-name">${a.name}</div></div>
+      <div class="watch-price">
+        <div class="watch-last ${cls}">${fmtPrice(a.last_price)}</div>
+        <div class="watch-chg ${cls}">${arrow} ${Math.abs(a.change_pct)}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterWatchlist(q){
+  const filtered = _watchAll.filter(a=>
+    a.ticker.toLowerCase().includes(q.toLowerCase()) ||
+    a.name.toLowerCase().includes(q.toLowerCase())
+  );
+  renderWatchlist(filtered);
+}
+
+function fmtPrice(p){ return p==null?'—':Number(p).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4}); }
+
+async function selectTicker(ticker, assetId){
+  _currentTicker = ticker;
+  _currentAssetId = assetId;
+  document.getElementById('o-ticker').value = ticker;
+  renderWatchlist(_watchAll);
+  await loadChart(ticker, _currentPeriod);
+  loadRecentTrades(ticker);
+}
+
+async function setPeriod(p, btn){
+  _currentPeriod = p;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(_currentTicker) await loadChart(_currentTicker, p);
+}
+
+async function loadChart(ticker, period){
+  const data = await authFetch(API+`/api/chart/${encodeURIComponent(ticker)}?period=${period}`).then(r=>r.json());
+
+  // Header
+  document.getElementById('ct-ticker').textContent = data.ticker;
+  document.getElementById('ct-name').textContent   = data.name;
+  document.getElementById('ct-meta').textContent   = `${data.asset_class.toUpperCase()} · ${data.currency}`;
+  const up = data.change >= 0;
+  document.getElementById('ct-price').innerHTML = `<span class="${up?'pos':'neg'}">${fmtPrice(data.last_price)}</span>`;
+  document.getElementById('ct-change').innerHTML = `<span class="${up?'pos':'neg'}">${up?'▲':'▼'} ${Math.abs(data.change)} (${up?'+':''}${data.change_pct}%)</span>`;
+
+  // Update order panel price
+  document.getElementById('o-price').value = data.last_price;
+  document.getElementById('o-ccy').textContent = data.currency;
+  updateNotional();
+
+  // Destroy old chart
+  if(_tradingChart){ _tradingChart.destroy(); _tradingChart = null; }
+  document.getElementById('trading-chart').innerHTML = '';
+
+  const chartHeight = Math.max(document.getElementById('trading-chart').offsetHeight || 500, 400);
+  const volH = Math.round(chartHeight * 0.18);
+  const canH = chartHeight - volH - 8;
+
+  _tradingChart = new ApexCharts(document.getElementById('trading-chart'), {
+    series: [
+      { name: 'Price', type: 'candlestick', data: data.ohlc },
+      { name: 'Volume', type: 'bar', data: data.volume },
+    ],
+    chart: {
+      type: 'candlestick',
+      height: chartHeight,
+      background: 'transparent',
+      toolbar: { show: true, tools:{ download:false, selection:true, zoom:true, zoomin:true, zoomout:true, pan:true, reset:true } },
+      animations: { enabled: false },
+      zoom: { enabled: true },
+    },
+    plotOptions: {
+      candlestick: { colors: { upward: '#3fb950', downward: '#f85149' }, wick: { useFillColor: true } },
+      bar: { columnWidth: '80%' },
+    },
+    colors: ['transparent', up ? '#3fb95055' : '#f8514955'],
+    stroke: { width: [1, 0] },
+    grid: { borderColor: '#21262d', strokeDashArray: 3 },
+    xaxis: {
+      type: 'datetime',
+      labels: { style: { colors: '#8b949e', fontSize: '11px' }, datetimeUTC: false },
+      axisBorder: { color: '#30363d' },
+      axisTicks: { color: '#30363d' },
+      crosshairs: { stroke: { color: '#58a6ff', width: 1, dashArray: 3 } },
+    },
+    yaxis: [
+      {
+        seriesName: 'Price',
+        labels: { style: { colors: '#8b949e', fontSize: '11px' }, formatter: v => fmtPrice(v) },
+        tooltip: { enabled: true },
+        height: `${canH}px`,
+        offset: 0,
+      },
+      {
+        seriesName: 'Volume',
+        opposite: true,
+        labels: { show: false },
+        height: `${volH}px`,
+        offset: canH + 8,
+        max: v => v * 5,
+      },
+    ],
+    tooltip: {
+      theme: 'dark',
+      shared: false,
+      custom: ({ seriesIndex, dataPointIndex, w }) => {
+        if(seriesIndex !== 0) return '';
+        const d = w.globals.initialSeries[0].data[dataPointIndex];
+        const [o,h,l,c] = d.y;
+        const chg = c - o; const pct = ((chg/o)*100).toFixed(2);
+        const col = chg >= 0 ? '#3fb950' : '#f85149';
+        return `<div style="padding:8px 12px;font-size:12px;line-height:1.8">
+          <div style="color:#8b949e">${new Date(d.x).toLocaleString()}</div>
+          <div>O <b>${fmtPrice(o)}</b> H <b>${fmtPrice(h)}</b> L <b>${fmtPrice(l)}</b> C <b style="color:${col}">${fmtPrice(c)}</b></div>
+          <div style="color:${col}">${chg>=0?'+':''}${fmtPrice(chg)} (${chg>=0?'+':''}${pct}%)</div>
+        </div>`;
+      },
+    },
+    theme: { mode: 'dark' },
+    legend: { show: false },
+  });
+  _tradingChart.render();
+}
+
+async function loadRecentTrades(ticker){
+  const txns = await authFetch(API+'/api/transactions').then(r=>r.json());
+  const filtered = txns.filter(t=>t.ticker===ticker).slice(0,10);
+  document.getElementById('recent-trades-list').innerHTML = filtered.length
+    ? filtered.map(t=>`
+        <div class="recent-trade-row">
+          <span class="${t.direction==='buy'?'pos':'neg'}">${t.direction.toUpperCase()}</span>
+          <span>${fmtPrice(t.execution_price)}</span>
+          <span style="color:var(--muted)">${fmtN(t.quantity)}</span>
+        </div>`).join('')
+    : '<div style="padding:12px 16px;font-size:12px;color:var(--muted)">No trades for this symbol</div>';
+}
+
+let _orderDir = 'buy';
+function setDir(d){
+  _orderDir = d;
+  document.getElementById('btn-buy').classList.toggle('active', d==='buy');
+  document.getElementById('btn-sell').classList.toggle('active', d==='sell');
+  const btn = document.getElementById('order-submit-btn');
+  btn.textContent = `Place ${d.toUpperCase()} Order`;
+  btn.className = `order-submit ${d}-submit`;
+}
+
+function updateNotional(){
+  const qty = parseFloat(document.getElementById('o-qty').value)||0;
+  const px  = parseFloat(document.getElementById('o-price').value)||0;
+  document.getElementById('o-notional').textContent = qty&&px ? '$'+fmt(qty*px) : '—';
+}
+
+async function submitOrder(){
+  const account_id     = parseInt(document.getElementById('o-account').value);
+  const counterparty_id= parseInt(document.getElementById('o-cp').value);
+  const trade_type     = document.getElementById('o-type').value;
+  const quantity       = parseFloat(document.getElementById('o-qty').value);
+  const execution_price= parseFloat(document.getElementById('o-price').value);
+  const msg = document.getElementById('order-msg');
+
+  if(!quantity||!execution_price){ msg.style.color='var(--red)'; msg.textContent='Quantity and price required'; return; }
+  if(!_currentAssetId){ msg.style.color='var(--red)'; msg.textContent='Select a symbol first'; return; }
+
+  // Get asset_id from watchlist data
+  const asset = _watchAll.find(a=>a.ticker===_currentTicker);
+  const asset_id = asset?.asset_id;
+  if(!asset_id){ msg.style.color='var(--red)'; msg.textContent='Asset not found'; return; }
+
+  const body = {
+    account_id, asset_id, counterparty_id, trade_type,
+    direction: _orderDir, quantity, execution_price,
+    currency: asset.currency,
+    traded_at: new Date().toISOString().slice(0,19).replace('T',' '),
+    notes: `${trade_type} order via Trading UI`,
+  };
+
+  const res = await authFetch(API+'/api/transactions',{method:'POST',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+
+  if(res.ok){
+    const d = await res.json();
+    msg.style.color='var(--green)';
+    msg.textContent = `✓ Order #${d.transaction_id} submitted`;
+    document.getElementById('o-qty').value='';
+    updateNotional();
+    loadRecentTrades(_currentTicker);
+    setTimeout(()=>{ msg.textContent=''; },4000);
+  } else {
+    const e = await res.json();
+    msg.style.color='var(--red)';
+    msg.textContent = 'Error: '+(e.detail||'unknown');
+  }
+}
 
 loadDashboard();
 initFilters();

@@ -1,9 +1,11 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from contextlib import asynccontextmanager
 from typing import Optional
-import pymysql, os
+from jose import JWTError, jwt
+import bcrypt as _bcrypt
+import pymysql, os, datetime, random, math
 
 # ── DB config ──────────────────────────────────────────────────
 DB = dict(
@@ -19,12 +21,68 @@ DB = dict(
 def get_conn():
     return pymysql.connect(**DB)
 
+# ── Auth config ────────────────────────────────────────────────
+SECRET_KEY = os.getenv("SECRET_KEY", "portfolio-secret-key-2024")
+ALGORITHM  = "HS256"
+TOKEN_EXPIRE_HOURS = 8
+
+def _hash_pw(password: str) -> str:
+    return _bcrypt.hashpw(password.encode(), _bcrypt.gensalt()).decode()
+
+def _verify_pw(password: str, hashed: str) -> bool:
+    return _bcrypt.checkpw(password.encode(), hashed.encode())
+
+def init_users():
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS Users (
+                    user_id       INT AUTO_INCREMENT PRIMARY KEY,
+                    username      VARCHAR(50) UNIQUE NOT NULL,
+                    password_hash VARCHAR(255) NOT NULL,
+                    role          VARCHAR(20) DEFAULT 'user',
+                    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            cur.execute("SELECT COUNT(*) AS cnt FROM Users WHERE username='admin'")
+            if cur.fetchone()["cnt"] == 0:
+                cur.execute(
+                    "INSERT INTO Users (username, password_hash, role) VALUES (%s, %s, %s)",
+                    ("admin", _hash_pw("admin123"), "admin"),
+                )
+    finally:
+        conn.close()
+
+def create_token(username: str, role: str) -> str:
+    expire = datetime.datetime.utcnow() + datetime.timedelta(hours=TOKEN_EXPIRE_HOURS)
+    return jwt.encode({"sub": username, "role": role, "exp": expire}, SECRET_KEY, algorithm=ALGORITHM)
+
 # ── App ────────────────────────────────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    init_users()
     yield
 
 app = FastAPI(title="Portfolio Management API", lifespan=lifespan)
+
+# ── Auth middleware ─────────────────────────────────────────────
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    path = request.url.path
+    # Allow login endpoint and static assets through
+    if path == "/api/login" or not path.startswith("/api/"):
+        return await call_next(request)
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        return JSONResponse({"detail": "Not authenticated"}, status_code=401)
+    try:
+        payload = jwt.decode(auth.split(" ")[1], SECRET_KEY, algorithms=[ALGORITHM])
+        if not payload.get("sub"):
+            raise ValueError
+    except (JWTError, ValueError):
+        return JSONResponse({"detail": "Invalid or expired token"}, status_code=401)
+    return await call_next(request)
 
 # ── Helpers ────────────────────────────────────────────────────
 def query(sql: str, args=None):
@@ -44,6 +102,67 @@ def execute(sql: str, args=None):
             return cur.lastrowid
     finally:
         conn.close()
+
+# ── Login ───────────────────────────────────────────────────────
+@app.post("/api/login")
+def login(body: dict):
+    username = body.get("username", "").strip()
+    password = body.get("password", "")
+    if not username or not password:
+        raise HTTPException(400, "username and password required")
+    rows = query("SELECT * FROM Users WHERE username=%s", (username,))
+    if not rows or not _verify_pw(password, rows[0]["password_hash"]):
+        raise HTTPException(401, "Invalid username or password")
+    token = create_token(rows[0]["username"], rows[0]["role"])
+    return {"access_token": token, "username": rows[0]["username"], "role": rows[0]["role"]}
+
+@app.get("/api/me")
+def me(request: Request):
+    token = request.headers["Authorization"].split(" ")[1]
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    return {"username": payload["sub"], "role": payload["role"]}
+
+# ── User Management ─────────────────────────────────────────────
+@app.get("/api/users")
+def get_users():
+    return query("SELECT user_id, username, role, created_at FROM Users ORDER BY user_id")
+
+@app.post("/api/users")
+def create_user(body: dict):
+    username = body.get("username", "").strip()
+    password = body.get("password", "")
+    role     = body.get("role", "user")
+    if not username or not password:
+        raise HTTPException(400, "username and password required")
+    if query("SELECT 1 FROM Users WHERE username=%s", (username,)):
+        raise HTTPException(409, "Username already exists")
+    uid = execute(
+        "INSERT INTO Users (username, password_hash, role) VALUES (%s, %s, %s)",
+        (username, _hash_pw(password), role),
+    )
+    return {"user_id": uid}
+
+@app.patch("/api/users/{user_id}")
+def update_user(user_id: int, body: dict):
+    rows = query("SELECT * FROM Users WHERE user_id=%s", (user_id,))
+    if not rows:
+        raise HTTPException(404, "User not found")
+    if "password" in body and body["password"]:
+        execute("UPDATE Users SET password_hash=%s WHERE user_id=%s",
+                (_hash_pw(body["password"]), user_id))
+    if "role" in body:
+        execute("UPDATE Users SET role=%s WHERE user_id=%s", (body["role"], user_id))
+    return {"updated": user_id}
+
+@app.delete("/api/users/{user_id}")
+def delete_user(user_id: int):
+    rows = query("SELECT * FROM Users WHERE user_id=%s", (user_id,))
+    if not rows:
+        raise HTTPException(404, "User not found")
+    if rows[0]["username"] == "admin":
+        raise HTTPException(400, "Cannot delete the admin account")
+    execute("DELETE FROM Users WHERE user_id=%s", (user_id,))
+    return {"deleted": user_id}
 
 # ══════════════════════════════════════════════════════════════
 # PORTFOLIO SUMMARY
@@ -393,6 +512,76 @@ def realized_pnl():
         HAVING sold_qty > 0
         ORDER BY realized_pnl DESC
     """)
+
+# ══════════════════════════════════════════════════════════════
+# CHART DATA  (simulated OHLCV via seeded random walk)
+# ══════════════════════════════════════════════════════════════
+@app.get("/api/chart/{ticker}")
+def get_chart(ticker: str, period: str = Query("1m")):
+    rows = query("SELECT last_price, name, asset_class, currency FROM Assets WHERE ticker=%s AND status='active'", (ticker,))
+    if not rows:
+        raise HTTPException(404, "Asset not found")
+    asset      = rows[0]
+    last_price = float(asset["last_price"])
+
+    cfg = {
+        "1d":  (390, datetime.timedelta(minutes=1)),
+        "1w":  (5*78, datetime.timedelta(minutes=5)),
+        "1m":  (30,   datetime.timedelta(days=1)),
+        "3m":  (90,   datetime.timedelta(days=1)),
+        "1y":  (252,  datetime.timedelta(days=1)),
+    }
+    count, delta = cfg.get(period, cfg["1m"])
+
+    # Seeded RNG so same ticker always yields same shape
+    seed = sum(ord(c) * (i + 1) for i, c in enumerate(ticker))
+    rng  = random.Random(seed)
+
+    # Walk backwards from last_price
+    prices = [last_price]
+    for _ in range(count - 1):
+        prices.append(prices[-1] / (1 + rng.gauss(0.0002, 0.015)))
+    prices.reverse()
+
+    now   = datetime.datetime.utcnow()
+    start = now - count * delta
+    ohlc, vol = [], []
+
+    for i, close in enumerate(prices):
+        ts    = start + i * delta
+        open_ = prices[i - 1] if i > 0 else close * (1 + rng.gauss(0, 0.005))
+        hi    = max(open_, close) * (1 + abs(rng.gauss(0, 0.004)))
+        lo    = min(open_, close) * (1 - abs(rng.gauss(0, 0.004)))
+        ms    = int(ts.timestamp() * 1000)
+        ohlc.append({"x": ms, "y": [round(open_, 4), round(hi, 4), round(lo, 4), round(close, 4)]})
+        vol.append({"x": ms, "y": int(rng.uniform(80_000, 900_000))})
+
+    prev_close = prices[0]
+    change     = round(last_price - prev_close, 4)
+    change_pct = round(change / prev_close * 100, 2)
+
+    return {
+        "ticker": ticker,
+        "name":   asset["name"],
+        "asset_class": asset["asset_class"],
+        "currency": asset["currency"],
+        "last_price": last_price,
+        "change": change,
+        "change_pct": change_pct,
+        "ohlc": ohlc,
+        "volume": vol,
+    }
+
+@app.get("/api/watchlist")
+def watchlist():
+    assets = query("SELECT asset_id, ticker, name, asset_class, currency, last_price FROM Assets WHERE status='active' ORDER BY ticker")
+    result = []
+    for a in assets:
+        seed = sum(ord(c) * (i + 1) for i, c in enumerate(a["ticker"]))
+        rng  = random.Random(seed)
+        chg  = round(rng.gauss(0.3, 1.8), 2)
+        result.append({**a, "change_pct": chg})
+    return result
 
 # ══════════════════════════════════════════════════════════════
 # STATIC FRONTEND
