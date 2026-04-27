@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portfolio MS Presentation</title>
+<style>
+  :root{
+    --bg:#071219;
+    --panel:#0f212a;
+    --panel2:#153341;
+    --line:#29576c;
+    --text:#ebf7f7;
+    --muted:#98b6c0;
+    --blue:#79d5ff;
+    --teal:#4dc4c7;
+    --green:#6fdf9b;
+    --yellow:#f3c56e;
+    --red:#ff8888;
+    --shadow:0 26px 70px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at top left, rgba(77,196,199,.18), transparent 24%),
+      radial-gradient(circle at top right, rgba(121,213,255,.16), transparent 22%),
+      linear-gradient(180deg, #061018 0%, #08141c 100%);
+    overflow:hidden;
+  }
+  .deck{
+    height:100%;
+    position:relative;
+  }
+  .sidebar{
+    position:fixed;
+    left:18px;
+    top:18px;
+    bottom:18px;
+    width:280px;
+    z-index:40;
+    border:1px solid rgba(121,213,255,.12);
+    border-radius:24px;
+    background:rgba(8,19,26,.88);
+    backdrop-filter:blur(16px);
+    padding:24px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    box-shadow:var(--shadow);
+    transform:translateX(-120%);
+    opacity:0;
+    pointer-events:none;
+    transition:transform .22s ease, opacity .22s ease;
+  }
+  .sidebar.open{
+    transform:translateX(0);
+    opacity:1;
+    pointer-events:auto;
+  }
+  .brand{
+    padding:18px;
+    border:1px solid rgba(121,213,255,.12);
+    border-radius:20px;
+    background:linear-gradient(160deg, rgba(20,54,68,.92), rgba(9,22,30,.96));
+    box-shadow:var(--shadow);
+  }
+  .brand-kicker{
+    color:var(--blue);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    margin-bottom:8px;
+  }
+  .brand h1{
+    font-size:24px;
+    line-height:1.05;
+    margin-bottom:10px;
+  }
+  .brand p{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.55;
+  }
+  .slide-list{
+    display:grid;
+    gap:8px;
+    overflow:auto;
+    padding-right:4px;
+  }
+  .slide-link{
+    border:1px solid rgba(121,213,255,.1);
+    border-radius:16px;
+    background:rgba(255,255,255,.03);
+    color:var(--text);
+    text-align:left;
+    padding:12px 14px;
+    cursor:pointer;
+    transition:.18s ease;
+  }
+  .slide-link:hover{background:rgba(121,213,255,.07)}
+  .slide-link.active{
+    background:linear-gradient(135deg, rgba(121,213,255,.16), rgba(77,196,199,.14));
+    border-color:rgba(121,213,255,.22);
+  }
+  .slide-link span{
+    display:block;
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    margin-bottom:4px;
+  }
+  .main{
+    position:relative;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    height:100%;
+  }
+  .toolbar{
+    position:fixed;
+    left:28px;
+    right:28px;
+    top:22px;
+    z-index:30;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .toolbar-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .pill{
+    padding:8px 12px;
+    border-radius:999px;
+    border:1px solid rgba(121,213,255,.12);
+    background:rgba(255,255,255,.04);
+    color:var(--muted);
+    font-size:12px;
+  }
+  .controls{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .controls button{
+    border:none;
+    border-radius:12px;
+    padding:10px 14px;
+    font-weight:700;
+    cursor:pointer;
+    color:#062028;
+    background:linear-gradient(135deg, var(--blue), var(--teal));
+  }
+  .controls button:disabled{
+    opacity:.45;
+      cursor:not-allowed;
+  }
+  .menu-btn{
+    background:rgba(255,255,255,.08) !important;
+    color:var(--text) !important;
+  }
+  .stage{
+    flex:1;
+    min-height:0;
+    position:relative;
+    padding:84px 28px 38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .slide{
+    position:relative;
+    width:min(1320px, calc(100vw - 56px));
+    height:min(820px, calc(100vh - 122px));
+    display:none;
+    border:1px solid rgba(121,213,255,.12);
+    border-radius:34px;
+    background:
+      radial-gradient(circle at top right, rgba(121,213,255,.14), transparent 24%),
+      linear-gradient(160deg, rgba(17,37,48,.96), rgba(8,18,24,.98));
+    box-shadow:var(--shadow);
+    padding:46px 52px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    scrollbar-width:none;
+  }
+  .slide::-webkit-scrollbar{display:none}
+  .slide.active{display:block}
+  .eyebrow{
+    color:var(--blue);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    margin-bottom:14px;
+  }
+  h2{
+    font-size:42px;
+    line-height:1.04;
+    margin-bottom:16px;
+    max-width:14ch;
+  }
+  .lead{
+    color:#c5dce3;
+    font-size:17px;
+    line-height:1.65;
+    margin-bottom:24px;
+    max-width:62ch;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+  }
+  .card{
+    border:1px solid rgba(121,213,255,.1);
+    border-radius:20px;
+    background:rgba(255,255,255,.03);
+    padding:18px 20px;
+  }
+  .card h3{
+    color:var(--blue);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:10px;
+  }
+  .list{
+    display:grid;
+    gap:10px;
+    color:var(--text);
+    font-size:17px;
+    line-height:1.5;
+  }
+  .list div::before{
+    content:"";
+    display:inline-block;
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--blue), var(--teal));
+    margin-right:12px;
+    vertical-align:middle;
+  }
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px;
+    margin-top:10px;
+  }
+  .stat{
+    padding:18px;
+    border-radius:18px;
+    border:1px solid rgba(121,213,255,.1);
+    background:rgba(255,255,255,.03);
+  }
+  .stat-label{
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:8px;
+  }
+  .stat-value{
+    font-size:28px;
+    font-weight:800;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    border:1px solid rgba(121,213,255,.1);
+    border-radius:18px;
+    overflow:hidden;
+  }
+  th,td{
+    padding:14px 16px;
+    text-align:left;
+    border-bottom:1px solid rgba(121,213,255,.08);
+    vertical-align:top;
+  }
+  th{
+    color:var(--blue);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    background:rgba(255,255,255,.03);
+  }
+  tr:last-child td{border-bottom:none}
+  .tag-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:18px;
+  }
+  .tag{
+    padding:8px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(121,213,255,.12);
+    color:#def5ff;
+    font-size:12px;
+  }
+  .accent-green{color:var(--green)}
+  .accent-yellow{color:var(--yellow)}
+  .accent-red{color:var(--red)}
+  .footer-note{
+    margin-top:18px;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .title-slide{
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(77,196,199,.16), transparent 22%),
+      radial-gradient(circle at 86% 14%, rgba(121,213,255,.18), transparent 24%),
+      linear-gradient(145deg, rgba(14,34,44,.98), rgba(6,15,21,.99));
+  }
+  .title-slide::before{
+    content:'';
+    position:absolute;
+    right:-120px;
+    top:-120px;
+    width:380px;
+    height:380px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(121,213,255,.14), transparent 68%);
+    pointer-events:none;
+  }
+  .title-slide::after{
+    content:'';
+    position:absolute;
+    left:-120px;
+    bottom:-120px;
+    width:320px;
+    height:320px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(111,223,155,.10), transparent 68%);
+    pointer-events:none;
+  }
+  .title-layout{
+    position:relative;
+    z-index:1;
+    height:100%;
+    display:grid;
+    grid-template-columns:1.25fr .75fr;
+    gap:26px;
+  }
+  .title-main{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  .title-kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    align-self:flex-start;
+    padding:10px 14px;
+    border-radius:999px;
+    background:rgba(121,213,255,.08);
+    border:1px solid rgba(121,213,255,.14);
+    color:var(--blue);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+  }
+  .title-heading{
+    max-width:12ch;
+    font-size:72px;
+    line-height:.96;
+    letter-spacing:-.03em;
+    margin:18px 0 18px;
+  }
+  .title-subcopy{
+    max-width:58ch;
+    color:#c6dbe1;
+    font-size:18px;
+    line-height:1.7;
+  }
+  .title-badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:20px;
+  }
+  .title-badge{
+    padding:10px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(121,213,255,.12);
+    color:#e2f7ff;
+    font-size:12px;
+  }
+  .title-side{
+    display:grid;
+    gap:16px;
+    align-content:center;
+  }
+  .title-panel{
+    padding:20px 22px;
+    border-radius:24px;
+    border:1px solid rgba(121,213,255,.12);
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    box-shadow:0 18px 42px rgba(0,0,0,.22);
+  }
+  .title-panel-label{
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.16em;
+    margin-bottom:10px;
+  }
+  .title-panel-value{
+    font-size:24px;
+    line-height:1.2;
+    font-weight:800;
+  }
+  .member-list{
+    display:grid;
+    gap:10px;
+    margin-top:8px;
+  }
+  .member-chip{
+    padding:12px 14px;
+    border-radius:16px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(121,213,255,.1);
+    font-size:18px;
+    font-weight:700;
+  }
+  .title-footer{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px;
+    margin-top:24px;
+  }
+  .title-stat{
+    padding:16px 18px;
+    border-radius:20px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(121,213,255,.1);
+  }
+  .title-stat span{
+    display:block;
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:8px;
+  }
+  .title-stat strong{
+    font-size:24px;
+    line-height:1.1;
+  }
+  .motivation-slide{
+    background:
+      radial-gradient(circle at 85% 16%, rgba(121,213,255,.14), transparent 24%),
+      radial-gradient(circle at 12% 86%, rgba(111,223,155,.10), transparent 20%),
+      linear-gradient(160deg, rgba(15,34,45,.98), rgba(7,16,22,.99));
+  }
+  .motivation-layout{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    min-width:0;
+  }
+  .motivation-layout > div{min-width:0}
+  .motivation-headline{
+    max-width:100%;
+    font-size:48px;
+    line-height:1;
+    letter-spacing:-.03em;
+    margin:10px 0 12px;
+  }
+  .motivation-copy{
+    width:100%;
+    max-width:100%;
+    color:#c4dce3;
+    font-size:16px;
+    line-height:1.62;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+  .motivation-stats{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;
+    margin-top:16px;
+  }
+  .motivation-stat{
+    padding:16px 18px;
+    border-radius:18px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(121,213,255,.1);
+  }
+  .motivation-stat span{
+    display:block;
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:8px;
+  }
+  .motivation-stat strong{
+    font-size:22px;
+    line-height:1.2;
+  }
+  .motivation-panels{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+    align-items:stretch;
+    min-width:0;
+    flex:1;
+  }
+  .problem-card,.goal-card{
+    position:relative;
+    overflow:hidden;
+    padding:22px;
+    border-radius:26px;
+    border:1px solid rgba(121,213,255,.12);
+    box-shadow:0 18px 40px rgba(0,0,0,.22);
+    min-width:0;
+  }
+  .problem-card{
+    background:linear-gradient(160deg, rgba(55,29,33,.78), rgba(18,20,26,.94));
+  }
+  .goal-card{
+    background:linear-gradient(160deg, rgba(17,57,63,.84), rgba(10,19,27,.96));
+  }
+  .problem-card::after,.goal-card::after{
+    content:'';
+    position:absolute;
+    right:-30px;
+    top:-30px;
+    width:150px;
+    height:150px;
+    border-radius:50%;
+    opacity:.5;
+  }
+  .problem-card::after{background:radial-gradient(circle, rgba(255,136,136,.16), transparent 65%)}
+  .goal-card::after{background:radial-gradient(circle, rgba(111,223,155,.16), transparent 65%)}
+  .panel-kicker{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    margin-bottom:10px;
+  }
+  .problem-card .panel-kicker{color:var(--red)}
+  .goal-card .panel-kicker{color:var(--green)}
+  .panel-title{
+    font-size:26px;
+    margin-bottom:14px;
+  }
+  .panel-list{
+    display:grid;
+    gap:8px;
+  }
+  .panel-item{
+    padding:12px 14px;
+    border-radius:16px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06);
+    color:#e7f4f7;
+    line-height:1.5;
+    font-size:14px;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+  .interface-slide{
+    background:
+      radial-gradient(circle at 85% 16%, rgba(121,213,255,.14), transparent 24%),
+      radial-gradient(circle at 12% 86%, rgba(111,223,155,.10), transparent 20%),
+      linear-gradient(160deg, rgba(15,34,45,.98), rgba(7,16,22,.99));
+    overflow:hidden !important;
+  }
+  .interface-layout{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    min-width:0;
+  }
+  .interface-layout > div{min-width:0}
+  .interface-headline{
+    max-width:none;
+    font-size:48px;
+    line-height:1;
+    letter-spacing:-.03em;
+    margin:10px 0 12px;
+  }
+  .interface-copy{
+    width:100%;
+    max-width:100%;
+    color:#c4dce3;
+    font-size:16px;
+    line-height:1.62;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+  .showcase-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+  .module-board{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  .module-stage{
+    border-radius:30px;
+    border:1px solid rgba(121,213,255,.12);
+    background:
+      radial-gradient(circle at top right, rgba(121,213,255,.12), transparent 24%),
+      linear-gradient(160deg, rgba(10,24,32,.96), rgba(6,14,20,.98));
+    box-shadow:var(--shadow);
+    padding:20px;
+  }
+  .module-stage h3{
+    color:var(--blue);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.16em;
+    margin-bottom:10px;
+  }
+  .module-stage p{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.55;
+    margin-bottom:14px;
+  }
+  .module-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;
+  }
+  .module-card{
+    border:none;
+    text-align:left;
+    border-radius:20px;
+    padding:14px;
+    cursor:pointer;
+    background:linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+    border:1px solid rgba(121,213,255,.1);
+    color:var(--text);
+    transition:transform .18s ease, border-color .18s ease, background .18s ease;
+    min-height:150px;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+  }
+  .module-card:hover{
+    transform:translateY(-3px);
+    border-color:rgba(121,213,255,.22);
+    background:linear-gradient(160deg, rgba(121,213,255,.10), rgba(77,196,199,.08));
+  }
+  .module-card span{
+    display:block;
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:8px;
+  }
+  .module-card strong{
+    display:block;
+    font-size:19px;
+    line-height:1.1;
+    margin-bottom:6px;
+  }
+  .module-card p{
+    color:#d6e9ee;
+    font-size:12px;
+    line-height:1.45;
+    margin:0;
+  }
+  .module-side{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    align-content:start;
+  }
+  .module-info{
+    padding:14px 16px;
+    border-radius:22px;
+    border:1px solid rgba(121,213,255,.1);
+    background:rgba(255,255,255,.03);
+  }
+  .module-info h4{
+    color:var(--blue);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:10px;
+  }
+  .module-info p{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.5;
+  }
+  .module-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:2px;
+    grid-column:1 / -1;
+  }
+  .crud-map{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+  }
+  .crud-chip{
+    border-radius:16px;
+    padding:12px 13px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(121,213,255,.1);
+  }
+  .crud-chip strong{
+    display:block;
+    color:var(--blue);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:6px;
+  }
+  .crud-chip span{
+    display:block;
+    color:#dceff3;
+    font-size:12px;
+    line-height:1.45;
+  }
+  .module-icon{
+    width:40px;
+    height:40px;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    margin-bottom:12px;
+    background:linear-gradient(135deg, rgba(121,213,255,.18), rgba(77,196,199,.10));
+    border:1px solid rgba(121,213,255,.16);
+    color:var(--blue);
+    font-size:18px;
+    font-weight:800;
+  }
+  .arch-stack{
+    display:grid;
+    gap:18px;
+  }
+  .arch-heading{
+    font-size:52px;
+    line-height:1.04;
+    letter-spacing:-.03em;
+    max-width:none;
+    white-space:nowrap;
+    margin-bottom:12px;
+  }
+  .er-heading{
+    font-size:52px;
+    line-height:1.04;
+    letter-spacing:-.03em;
+    max-width:none;
+    white-space:nowrap;
+    margin-bottom:12px;
+  }
+  .section-heading{
+    font-size:52px;
+    line-height:1.04;
+    letter-spacing:-.03em;
+    max-width:none;
+    white-space:nowrap;
+    margin-bottom:12px;
+  }
+  .function-layout{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:18px;
+    align-items:stretch;
+  }
+  .function-card{
+    display:grid;
+    gap:16px;
+    align-content:start;
+    border-radius:26px;
+    padding:22px 22px 20px;
+    background:
+      radial-gradient(circle at top right, rgba(121,213,255,.12), transparent 28%),
+      linear-gradient(180deg, rgba(20,47,59,.94), rgba(8,24,31,.98));
+    border:1px solid rgba(121,213,255,.12);
+    box-shadow:0 18px 42px rgba(0,0,0,.2);
+  }
+  .function-meta{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .function-index{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    background:linear-gradient(135deg, rgba(121,213,255,.18), rgba(77,196,199,.10));
+    border:1px solid rgba(121,213,255,.16);
+    color:var(--blue);
+    font-size:18px;
+    font-weight:800;
+  }
+  .function-tag{
+    padding:7px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(121,213,255,.12);
+    color:var(--muted);
+    font-size:11px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+  }
+  .function-head h3{
+    margin-bottom:10px;
+  }
+  .function-card h3{
+    margin-bottom:0;
+  }
+  .function-card p{
+    margin:0;
+    color:#c9e4e9;
+    font-size:14px;
+    line-height:1.58;
+  }
+  .function-points{
+    display:grid;
+    gap:10px;
+  }
+  .function-point{
+    border-radius:16px;
+    padding:12px 14px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(121,213,255,.1);
+    color:#dceef2;
+    font-size:13px;
+    line-height:1.45;
+  }
+  .flow-panel{
+    border-radius:20px;
+    padding:16px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(121,213,255,.1);
+  }
+  .flow-kicker{
+    color:var(--blue);
+    font-size:11px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:8px;
+  }
+  .flow-title{
+    font-size:18px;
+    font-weight:800;
+    margin-bottom:12px;
+  }
+  .flow-lane{
+    display:grid;
+    gap:8px;
+  }
+  .flow-box{
+    border-radius:14px;
+    padding:11px 13px;
+    background:rgba(8,24,31,.62);
+    border:1px solid rgba(121,213,255,.08);
+    color:#dceef2;
+    font-size:12px;
+    line-height:1.42;
+  }
+  .flow-arrow{
+    text-align:center;
+    color:var(--blue);
+    font-size:18px;
+    font-weight:800;
+    line-height:1;
+  }
+  .flow-box strong{
+    display:block;
+    color:#f3fbff;
+    margin-bottom:4px;
+    font-size:13px;
+  }
+  .arch-diagram{
+    display:grid;
+    grid-template-columns:1fr auto 1fr auto 1fr;
+    gap:14px;
+    align-items:center;
+  }
+  .arch-node{
+    position:relative;
+    padding:24px 20px;
+    border-radius:28px;
+    border:1px solid rgba(121,213,255,.16);
+    background:linear-gradient(160deg, rgba(121,213,255,.10), rgba(255,255,255,.03));
+    box-shadow:0 22px 46px rgba(0,0,0,.24);
+  }
+  .arch-node::after{
+    display:none;
+  }
+  .arch-node:last-child::after{display:none}
+  .arch-connector{
+    display:grid;
+    place-items:center;
+    width:42px;
+    height:42px;
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(121,213,255,.12);
+    color:var(--blue);
+    font-size:22px;
+    font-weight:800;
+  }
+  .arch-label{
+    color:var(--muted);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    margin-bottom:12px;
+  }
+  .arch-title{
+    font-size:34px;
+    margin-bottom:14px;
+    color:var(--text);
+  }
+  .arch-icon{
+    width:66px;
+    height:66px;
+    border-radius:20px;
+    display:grid;
+    place-items:center;
+    margin-bottom:16px;
+    background:linear-gradient(135deg, rgba(121,213,255,.18), rgba(77,196,199,.10));
+    border:1px solid rgba(121,213,255,.18);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .arch-icon svg{
+    width:34px;
+    height:34px;
+    stroke:var(--blue);
+    fill:none;
+    stroke-width:1.8;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .arch-copy{
+    color:#d0e5ea;
+    font-size:15px;
+    line-height:1.62;
+  }
+  .arch-list{
+    display:grid;
+    gap:10px;
+    margin-top:16px;
+  }
+  .arch-list div{
+    padding:12px 14px;
+    border-radius:16px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(121,213,255,.1);
+    font-size:14px;
+    line-height:1.5;
+    color:#e4f4f6;
+  }
+  .arch-flow{
+    display:grid;
+    grid-template-columns:repeat(5,auto);
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    color:var(--muted);
+    font-size:14px;
+  }
+  .arch-pill{
+    padding:12px 16px;
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(121,213,255,.12);
+  }
+  .arch-arrow{
+    color:var(--blue);
+    font-size:22px;
+    font-weight:800;
+  }
+  .arch-card{
+    padding:18px 22px;
+  }
+  .arch-requirements{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:12px;
+  }
+  .arch-req{
+    border-radius:16px;
+    padding:14px 16px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(121,213,255,.1);
+    color:#d7ecef;
+    font-size:13px;
+    line-height:1.5;
+  }
+  .arch-req strong{
+    display:block;
+    color:var(--blue);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    margin-bottom:6px;
+  }
+  .er-slide{
+    display:grid;
+    gap:12px;
+  }
+  .er-intro{
+    width:100%;
+    max-width:none;
+    font-size:14px;
+    line-height:1.55;
+  }
+  .er-board{
+    position:relative;
+    min-height:auto;
+    border-radius:30px;
+    padding:28px;
+    background:
+      radial-gradient(circle at top left, rgba(121,213,255,.12), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(33,192,177,.12), transparent 26%),
+      linear-gradient(180deg, rgba(12,28,37,.96), rgba(7,18,25,.98));
+    border:1px solid rgba(121,213,255,.12);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    overflow:hidden;
+  }
+  .er-image-shell{
+    border-radius:24px;
+    padding:18px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(121,213,255,.12);
+    box-shadow:0 20px 48px rgba(0,0,0,.22);
+  }
+  .er-image{
+    display:block;
+    width:100%;
+    height:auto;
+    border-radius:18px;
+    background:#f7fbfc;
+  }
+  .er-frame-shell{
+    border-radius:24px;
+    padding:12px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(121,213,255,.12);
+    box-shadow:0 20px 48px rgba(0,0,0,.22);
+  }
+  .er-frame-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .er-frame-label{
+    color:var(--blue);
+    font-size:11px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.16em;
+  }
+  .er-frame{
+    width:100%;
+    height:620px;
+    border:none;
+    border-radius:18px;
+    background:#07131a;
+  }
+  .er-thumb{
+    position:relative;
+    display:block;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid rgba(121,213,255,.12);
+    background:#07131a;
+    text-decoration:none;
+  }
+  .er-thumb img{
+    display:block;
+    width:100%;
+    height:500px;
+    object-fit:contain;
+    object-position:center;
+    background:#f7fbfc;
+  }
+  .er-thumb::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg, rgba(3,10,15,.04), rgba(3,10,15,.24));
+    pointer-events:none;
+  }
+  .er-thumb-badge{
+    position:absolute;
+    left:16px;
+    bottom:16px;
+    z-index:2;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:999px;
+    background:rgba(7,19,26,.82);
+    border:1px solid rgba(121,213,255,.16);
+    color:#eaf8fb;
+    font-size:13px;
+    font-weight:700;
+    box-shadow:0 14px 30px rgba(0,0,0,.22);
+  }
+  .er-thumb-badge span{
+    color:var(--blue);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+  }
+  .er-summary{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  .er-summary-card{
+    border-radius:16px;
+    padding:13px 14px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(121,213,255,.1);
+    color:#d8ecef;
+    font-size:12px;
+    line-height:1.5;
+  }
+  .er-summary-card strong{
+    color:var(--blue);
+  }
+  .er-caption-row{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:14px;
+  }
+  .er-caption{
+    border-radius:18px;
+    padding:13px 14px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(121,213,255,.1);
+    color:#d8ecef;
+    font-size:12px;
+    line-height:1.5;
+  }
+  .er-caption strong{
+    color:var(--blue);
+  }
+  .er-open{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 14px;
+    border-radius:12px;
+    border:none;
+    cursor:pointer;
+    font-weight:700;
+    background:linear-gradient(135deg, var(--blue), var(--teal));
+    color:#062028;
+    box-shadow:0 14px 30px rgba(0,0,0,.18);
+  }
+  .module-actions a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 14px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:700;
+    background:linear-gradient(135deg, var(--blue), var(--teal));
+    color:#062028;
+  }
+  .module-actions .ghost-link{
+    background:rgba(255,255,255,.05);
+    color:var(--text);
+    border:1px solid rgba(121,213,255,.12);
+  }
+  .dots{display:flex;gap:6px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot.red{background:#ff7b7b}
+  .dot.yellow{background:#f3c56e}
+  .dot.green{background:#6fdf9b}
+  .address{
+    padding:7px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.04);
+    color:var(--muted);
+    font-size:12px;
+    border:1px solid rgba(121,213,255,.08);
+  }
+  .ui-scene{
+    padding:18px;
+    min-height:340px;
+    background:
+      radial-gradient(circle at top right, rgba(121,213,255,.10), transparent 20%),
+      linear-gradient(180deg, #08131a 0%, #0b1a22 100%);
+  }
+  .mini-login{
+    width:58%;
+    margin:20px auto 0;
+    border:1px solid rgba(121,213,255,.14);
+    border-radius:20px;
+    background:linear-gradient(180deg, rgba(16,33,42,.96), rgba(10,24,31,.98));
+    padding:22px;
+  }
+  .mini-logo{
+    color:var(--blue);
+    font-size:14px;
+    font-weight:800;
+    margin-bottom:14px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+  }
+  .mini-title{
+    font-size:22px;
+    margin-bottom:8px;
+  }
+  .mini-copy{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.5;
+    margin-bottom:14px;
+  }
+  .mini-input{
+    height:38px;
+    border-radius:10px;
+    border:1px solid rgba(121,213,255,.12);
+    background:rgba(255,255,255,.04);
+    margin-top:10px;
+  }
+  .mini-button{
+    margin-top:14px;
+    padding:10px 14px;
+    text-align:center;
+    border-radius:12px;
+    background:linear-gradient(135deg, var(--blue), var(--teal));
+    color:#062028;
+    font-weight:800;
+    font-size:12px;
+  }
+  .ui-card-grid{
+    display:grid;
+    gap:14px;
+  }
+  .ui-mini{
+    border:1px solid rgba(121,213,255,.1);
+    border-radius:18px;
+    background:rgba(255,255,255,.03);
+    padding:14px;
+  }
+  .ui-mini-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .ui-mini-label{
+    color:var(--blue);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+  }
+  .ui-chip{
+    padding:6px 10px;
+    border-radius:999px;
+    background:rgba(121,213,255,.08);
+    color:var(--muted);
+    font-size:11px;
+  }
+  .bars{
+    display:grid;
+    gap:8px;
+  }
+  .bar{
+    height:12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+    overflow:hidden;
+  }
+  .bar > span{
+    display:block;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg, var(--blue), var(--teal));
+  }
+  .table-preview{
+    display:grid;
+    gap:8px;
+  }
+  .table-row{
+    display:grid;
+    grid-template-columns:1fr .9fr .7fr;
+    gap:8px;
+  }
+  .cell{
+    height:28px;
+    border-radius:10px;
+    background:rgba(255,255,255,.05);
+  }
+  .preview-overlay{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:rgba(2,8,12,.82);
+    backdrop-filter:blur(12px);
+  }
+  .preview-overlay.open{display:flex}
+  .preview-shell{
+    width:min(96vw, 1500px);
+    height:min(92vh, 920px);
+    border-radius:28px;
+    overflow:hidden;
+    border:1px solid rgba(121,213,255,.16);
+    background:#061018;
+    box-shadow:0 30px 90px rgba(0,0,0,.5);
+    display:flex;
+    flex-direction:column;
+  }
+  .preview-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 16px;
+    border-bottom:1px solid rgba(121,213,255,.1);
+    background:linear-gradient(160deg, rgba(20,54,68,.92), rgba(9,22,30,.96));
+  }
+  .preview-title{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+  }
+  .preview-title strong{
+    font-size:14px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--blue);
+  }
+  .preview-url{
+    color:var(--muted);
+    font-size:12px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .preview-close{
+    border:none;
+    border-radius:12px;
+    padding:10px 14px;
+    cursor:pointer;
+    font-weight:700;
+    background:rgba(255,255,255,.08);
+    color:var(--text);
+  }
+  .preview-frame{
+    flex:1;
+    width:100%;
+    border:none;
+    background:#08131a;
+  }
+  .mini-points{
+    display:grid;
+    gap:12px;
+  }
+  .mini-point{
+    padding:14px 16px;
+    border-radius:16px;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(121,213,255,.1);
+  }
+  .mini-point h4{
+    color:var(--blue);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:6px;
+  }
+  .mini-point p{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.55;
+  }
+  @media (max-width: 980px){
+    body{overflow:auto}
+    .sidebar{
+      left:12px;
+      right:12px;
+      top:12px;
+      bottom:12px;
+      width:auto;
+    }
+    .toolbar{
+      left:14px;
+      right:14px;
+      top:14px;
+      flex-wrap:wrap;
+    }
+    .stage{
+      min-height:78vh;
+      padding:110px 12px 16px;
+    }
+    .slide{
+      width:100%;
+      height:auto;
+      min-height:calc(100vh - 132px);
+      padding:28px 22px;
+    }
+    .grid,.stats,.showcase-grid,.module-board,.module-grid,.title-layout,.title-footer,.motivation-panels,.motivation-stats,.module-side,.arch-diagram,.er-caption-row,.arch-requirements,.crud-map,.er-summary{grid-template-columns:1fr}
+    h2{font-size:34px}
+    .mini-login{width:100%}
+    .title-heading{font-size:48px}
+    .motivation-headline{font-size:38px}
+    .interface-headline{font-size:38px}
+    .arch-heading{
+      font-size:36px;
+      white-space:normal;
+    }
+    .er-heading{
+      font-size:36px;
+      white-space:normal;
+    }
+    .section-heading{
+      font-size:36px;
+      white-space:normal;
+    }
+    .function-layout{grid-template-columns:1fr}
+    .arch-flow{grid-template-columns:1fr;justify-items:center}
+    .arch-connector{display:none}
+    .er-board{padding:22px}
+  }
+</style>
+</head>
+<body>
+  <div class="deck">
+    <aside class="sidebar">
+      <section class="brand">
+        <div class="brand-kicker">Final Presentation</div>
+        <h1>Portfolio Management System</h1>
+        <p>A browser-based slide deck for the ITMD 422/523 final project demo.</p>
+      </section>
+      <nav class="slide-list" id="slide-list"></nav>
+    </aside>
+    <main class="main">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <button class="pill menu-btn" id="menu-btn" type="button">Slides</button>
+          <div class="pill" id="slide-counter">Slide 1 / 8</div>
+          <div class="pill">PPT Mode</div>
+        </div>
+        <div class="controls">
+          <button id="prev-btn" type="button">Prev</button>
+          <button id="next-btn" type="button">Next</button>
+        </div>
+      </div>
+      <div class="stage">
+        <section class="slide title-slide active" data-title="Title">
+          <div class="title-layout">
+            <div class="title-main">
+              <div>
+                <div class="title-kicker">ITMD 422/523 Final Project</div>
+                <h2 class="title-heading">Institutional Trader Portfolio Management System</h2>
+                <p class="title-subcopy">A polished database application for portfolio monitoring, trade processing, risk control, and master data management through a web interface backed by MySQL.</p>
+                <div class="title-badges">
+                  <span class="title-badge">MySQL-backed</span>
+                  <span class="title-badge">FastAPI + Web UI</span>
+                  <span class="title-badge">CRUD through interface</span>
+                </div>
+              </div>
+              <div class="title-footer">
+                <div class="title-stat">
+                  <span>DBMS</span>
+                  <strong>MySQL</strong>
+                </div>
+                <div class="title-stat">
+                  <span>Backend</span>
+                  <strong>FastAPI</strong>
+                </div>
+                <div class="title-stat">
+                  <span>Frontend</span>
+                  <strong>Web UI</strong>
+                </div>
+              </div>
+            </div>
+            <div class="title-side">
+              <div class="title-panel">
+                <div class="title-panel-label">Team Members</div>
+                <div class="member-list">
+                  <div class="member-chip">jianzhang</div>
+                  <div class="member-chip">xintong yu</div>
+                </div>
+              </div>
+              <div class="title-panel">
+                <div class="title-panel-label">Presentation Focus</div>
+                <div class="title-panel-value">Database design, business functions, UI-based CRUD, and demo workflow.</div>
+              </div>
+              <div class="title-panel">
+                <div class="title-panel-label">Deployment</div>
+                <div class="title-panel-value">Theta EdgeCloud</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide motivation-slide" data-title="Problem">
+          <div class="motivation-layout">
+            <div>
+              <div>
+                <div class="eyebrow">Project Motivation</div>
+                <h2 class="motivation-headline">Problem and Goal</h2>
+                <p class="motivation-copy">We wanted a course project that feels realistic enough to demonstrate actual business workflows, but still stays within the scope of a database class. The focus is a clear database-backed system, not an oversized software engineering build.</p>
+              </div>
+              <div class="motivation-stats">
+                <div class="motivation-stat">
+                  <span>Scope</span>
+                  <strong>Manageable</strong>
+                </div>
+                <div class="motivation-stat">
+                  <span>Focus</span>
+                  <strong>Database + UI</strong>
+                </div>
+                <div class="motivation-stat">
+                  <span>Requirement</span>
+                  <strong>Full CRUD</strong>
+                </div>
+              </div>
+            </div>
+            <div class="motivation-panels">
+              <div class="problem-card">
+                <div class="panel-kicker">Problem</div>
+                <div class="panel-title">Why this system is needed</div>
+                <div class="panel-list">
+                  <div class="panel-item">Portfolio data spans accounts, assets, transactions, and risk rules, so users need one place to view it clearly.</div>
+                  <div class="panel-item">Using manual SQL tools alone is not enough for a strong final demo because instructors need to see user-driven operations.</div>
+                  <div class="panel-item">The project must show meaningful database behavior without becoming too broad for a semester course.</div>
+                </div>
+              </div>
+              <div class="goal-card">
+                <div class="panel-kicker">Goal</div>
+                <div class="panel-title">What we set out to build</div>
+                <div class="panel-list">
+                  <div class="panel-item">Build a complete MySQL-backed application with a clean web interface and realistic financial entities.</div>
+                  <div class="panel-item">Support portfolio monitoring, transaction handling, and risk management as core business workflows.</div>
+                  <div class="panel-item">Demonstrate select, insert, update, and delete through the interface in a way that is easy to present.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide interface-slide" data-title="Interface">
+          <div class="interface-layout">
+            <div>
+              <div class="eyebrow">Visual Tour</div>
+              <h2 class="interface-headline">Actual System Interface</h2>
+              <p class="interface-copy">This slide embeds the real application, not a mockup. During the presentation, we can show the login page, dashboard, transactions, risk monitor, and master data screens from the actual running system.</p>
+            </div>
+            <div class="module-board">
+              <div class="module-stage">
+                <h3>Interactive Module Board</h3>
+                <p>Select a module and preview the actual running interface.</p>
+                <div class="module-grid">
+                  <button class="module-card" data-preview-name="Login" data-preview-src="/?demo_preview=0">
+                    <div class="module-icon">L</div>
+                    <span>Entry</span>
+                    <strong>Login</strong>
+                    <p>Shows the redesigned sign-in experience used as the opening page of the system.</p>
+                  </button>
+                  <button class="module-card" data-preview-name="Dashboard" data-preview-src="/?demo_preview=1&demo_page=dashboard">
+                    <div class="module-icon">D</div>
+                    <span>Overview</span>
+                    <strong>Dashboard</strong>
+                    <p>Portfolio summary, account performance, and exposure charts.</p>
+                  </button>
+                  <button class="module-card" data-preview-name="Transactions" data-preview-src="/?demo_preview=1&demo_page=transactions">
+                    <div class="module-icon">T</div>
+                    <span>CRUD</span>
+                    <strong>Transactions</strong>
+                    <p>Create and cancel trades directly through the application interface.</p>
+                  </button>
+                  <button class="module-card" data-preview-name="Risk" data-preview-src="/?demo_preview=1&demo_page=risk">
+                    <div class="module-icon">R</div>
+                    <span>Control</span>
+                    <strong>Risk Monitor</strong>
+                    <p>Review limits, utilization, alerts, and breach conditions.</p>
+                  </button>
+                  <button class="module-card" data-preview-name="Trading" data-preview-src="/?demo_preview=1&demo_page=trading">
+                    <div class="module-icon">Q</div>
+                    <span>Execution</span>
+                    <strong>Trading</strong>
+                    <p>Live trading-style layout with watchlist, chart, and order entry.</p>
+                  </button>
+                  <button class="module-card" data-preview-name="Master Data" data-preview-src="/?demo_preview=1&demo_page=masterdata&demo_subtab=assets">
+                    <div class="module-icon">M</div>
+                    <span>Maintenance</span>
+                    <strong>Master Data</strong>
+                    <p>Manage assets, accounts, counterparties, traders, and users.</p>
+                  </button>
+                </div>
+                <div class="crud-map">
+                  <div class="crud-chip">
+                    <strong>Select / Query</strong>
+                    <span>Dashboard, Holdings, Transactions, and Risk pages</span>
+                  </div>
+                  <div class="crud-chip">
+                    <strong>Insert / Create</strong>
+                    <span>Trading, Transactions, Risk, and Master Data forms</span>
+                  </div>
+                  <div class="crud-chip">
+                    <strong>Update / Modify</strong>
+                    <span>Risk limits, transaction records, and master data edits</span>
+                  </div>
+                  <div class="crud-chip">
+                    <strong>Delete / Remove</strong>
+                    <span>Cancel transactions and deactivate or delist records</span>
+                  </div>
+                </div>
+              </div>
+              <div class="module-actions">
+                <a href="/" target="_blank" rel="noreferrer">Open Full System</a>
+                <a class="ghost-link" href="/presentation" target="_blank" rel="noreferrer">Stay in Presentation</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Architecture">
+          <div class="eyebrow">System Overview</div>
+          <h2 class="arch-heading">Architecture and Modules</h2>
+          <p class="interface-copy">This MVC-style architecture was designed to meet the course requirement for a small but complete database application, including a user interface, a MySQL database, meaningful business functions, and working CRUD operations performed through the interface.</p>
+          <div class="arch-stack">
+            <div class="arch-diagram">
+              <div class="arch-node">
+                <div class="arch-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <rect x="3" y="4" width="18" height="13" rx="2"></rect>
+                    <path d="M8 20h8"></path>
+                    <path d="M12 17v3"></path>
+                    <path d="M3 8h18"></path>
+                  </svg>
+                </div>
+                <div class="arch-label">View</div>
+                <div class="arch-title">Web UI</div>
+                <div class="arch-copy">The visible application layer required by the assignment.</div>
+                <div class="arch-list">
+                  <div>HTML, CSS, JavaScript</div>
+                  <div>Login, dashboard, transactions, risk, trading</div>
+                  <div>User-triggered interface actions</div>
+                </div>
+              </div>
+              <div class="arch-connector" aria-hidden="true">→</div>
+              <div class="arch-node">
+                <div class="arch-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M8 8 4 12l4 4"></path>
+                    <path d="M16 8l4 4-4 4"></path>
+                    <path d="M12 3v3"></path>
+                    <path d="M12 18v3"></path>
+                    <path d="M4.9 4.9l2.1 2.1"></path>
+                    <path d="M17 17l2.1 2.1"></path>
+                    <path d="M3 12h3"></path>
+                    <path d="M18 12h3"></path>
+                    <path d="M4.9 19.1 7 17"></path>
+                    <path d="M17 7l2.1-2.1"></path>
+                    <circle cx="12" cy="12" r="2.5"></circle>
+                  </svg>
+                </div>
+                <div class="arch-label">Controller</div>
+                <div class="arch-title">FastAPI</div>
+                <div class="arch-copy">Processes requests and coordinates application logic.</div>
+                <div class="arch-list">
+                  <div>API routes</div>
+                  <div>Validation and JWT auth</div>
+                  <div>CRUD handling and business flow</div>
+                </div>
+              </div>
+              <div class="arch-connector" aria-hidden="true">→</div>
+              <div class="arch-node">
+                <div class="arch-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <ellipse cx="12" cy="5" rx="7" ry="3"></ellipse>
+                    <path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5"></path>
+                    <path d="M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"></path>
+                  </svg>
+                </div>
+                <div class="arch-label">Model</div>
+                <div class="arch-title">MySQL</div>
+                <div class="arch-copy">Stores the persistent project data and entity relationships.</div>
+                <div class="arch-list">
+                  <div>Accounts, assets, transactions, holdings</div>
+                  <div>Risk limits, counterparties, users</div>
+                  <div>Relational schema with business data</div>
+                </div>
+              </div>
+            </div>
+            <div class="arch-requirements">
+              <div class="arch-req"><strong>Interface</strong>The View layer is the visible web application required by the assignment.</div>
+              <div class="arch-req"><strong>MySQL</strong>The Model layer is the database backend that stores the project data.</div>
+              <div class="arch-req"><strong>Functions</strong>Portfolio monitoring and trade/risk workflows satisfy the business function requirement.</div>
+              <div class="arch-req"><strong>CRUD</strong>All select, insert, update, and delete actions are triggered through the interface.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Database">
+          <div class="eyebrow">Database Design</div>
+          <h2 class="er-heading">Schema and Entity Relationships</h2>
+          <div class="er-slide">
+            <p class="lead er-intro">This E-R diagram shows the main MySQL tables in our system and how traders, accounts, assets, transactions, holdings, and risk limits are related in one database-backed application.</p>
+            <div class="er-board">
+              <div class="er-frame-shell">
+                <div class="er-frame-head">
+                  <div class="er-frame-label">Live HTML E-R View</div>
+                  <button class="er-open" type="button" data-preview-name="Full ER Diagram" data-preview-src="/static/erd-live.html">Open Full ER Diagram</button>
+                </div>
+                <a class="er-thumb" href="/static/erd-live.html" target="_blank" rel="noreferrer" data-preview-name="Full ER Diagram" data-preview-src="/static/erd-live.html">
+                  <img src="/static/er.png" alt="Thumbnail preview of the ER diagram">
+                  <div class="er-thumb-badge"><span>Preview</span>Click button for full-screen ER view</div>
+                </a>
+              </div>
+            </div>
+            <div class="er-summary">
+              <div class="er-summary-card"><strong>Core relationship logic:</strong> traders manage accounts, accounts execute transactions, and transactions connect assets and counterparties.</div>
+              <div class="er-summary-card"><strong>Control and reporting:</strong> holdings summarize positions and risk limits enforce account-level and asset-level monitoring.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Functions">
+          <div class="eyebrow">Business Functions</div>
+          <h2 class="section-heading">Application Functions</h2>
+          <div class="function-layout">
+              <div class="function-card">
+                <div class="function-meta">
+                  <div class="function-index">1</div>
+                  <div class="function-tag">Select / Query Focus</div>
+                </div>
+                <div class="function-head">
+                  <h3>Business Function 1: Portfolio Monitoring</h3>
+                  <p>Users review portfolio performance and position data from the interface through query-driven pages backed by the MySQL schema.</p>
+                </div>
+                <div class="function-points">
+                  <div class="function-point">Portfolio summary by account</div>
+                  <div class="function-point">Current holdings and unrealized P&amp;L</div>
+                  <div class="function-point">Exposure by asset class</div>
+                  <div class="function-point">Transaction history and realized P&amp;L</div>
+                </div>
+                <div class="flow-panel">
+                  <div class="flow-kicker">How It Works</div>
+                  <div class="flow-title">Portfolio Monitoring Flow</div>
+                  <div class="flow-lane">
+                    <div class="flow-box"><strong>Interface Pages</strong>Dashboard, Holdings, and Transactions</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-box"><strong>Database Tables</strong>Accounts, Holdings, Assets, and Transactions</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-box"><strong>Course Requirement</strong>Mainly supports Select / Query through the interface</div>
+                  </div>
+                </div>
+              </div>
+              <div class="function-card">
+                <div class="function-meta">
+                  <div class="function-index">2</div>
+                  <div class="function-tag">CRUD Control Focus</div>
+                </div>
+                <div class="function-head">
+                  <h3>Business Function 2: Trade and Risk Management</h3>
+                  <p>Users create or cancel trades, maintain reference data, and manage risk limits through the application interface.</p>
+                </div>
+                <div class="function-points">
+                  <div class="function-point">Create and cancel transactions</div>
+                  <div class="function-point">Maintain assets, accounts, and counterparties</div>
+                  <div class="function-point">Add and edit risk limits</div>
+                  <div class="function-point">Monitor alerts and breaches</div>
+                </div>
+                <div class="flow-panel">
+                  <div class="flow-kicker">How It Works</div>
+                  <div class="flow-title">Trade and Risk Management Flow</div>
+                  <div class="flow-lane">
+                    <div class="flow-box"><strong>Interface Pages</strong>Trading, Transactions, Risk, and Master Data</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-box"><strong>Database Tables</strong>Transactions, Risk_Limits, Accounts, Assets, and Counterparties</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-box"><strong>Course Requirement</strong>Demonstrates Insert, Update, and Delete through the interface</div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="CRUD">
+          <div class="eyebrow">Course Requirement</div>
+          <h2 class="section-heading">Database Operations Through the Interface</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Required Operation</th>
+                <th>How Our System Supports It</th>
+                <th>Example Interface Pages</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Select / Query</td>
+                <td>Users can view portfolio summary, holdings, transactions, risk alerts, and reference data directly from the application.</td>
+                <td>Dashboard, Holdings, Transactions, Risk, Master Data</td>
+              </tr>
+              <tr>
+                <td>Insert / Create</td>
+                <td>Users can add new trades, assets, accounts, counterparties, users, and risk limits through form-based actions.</td>
+                <td>Trading, Transactions, Risk, Master Data</td>
+              </tr>
+              <tr>
+                <td>Update / Modify</td>
+                <td>Users can edit user records, risk limits, transaction information, and selected asset values from the interface.</td>
+                <td>Transactions, Risk, Master Data</td>
+              </tr>
+              <tr>
+                <td>Delete / Remove</td>
+                <td>Users can cancel transactions, close accounts, delist assets, and deactivate records without using SQL tools manually.</td>
+                <td>Transactions, Master Data</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="footer-note">This slide directly matches the course requirement that all four database operations must be performed through the application/interface rather than entered manually in MySQL Workbench or SQL tools.</p>
+        </section>
+
+        <section class="slide" data-title="Demo">
+          <div class="eyebrow">Presentation Flow</div>
+          <h2 class="section-heading">Demo</h2>
+          <div class="grid">
+            <div class="card">
+              <h3>Demo Steps</h3>
+              <div class="list">
+                <div>Log in and introduce the main system pages.</div>
+                <div>Show the dashboard, holdings, and transactions to demonstrate Select / Query.</div>
+                <div>Add a new trade through the interface to demonstrate Insert / Create.</div>
+                <div>Edit a risk limit or record to demonstrate Update / Modify.</div>
+                <div>Cancel a transaction to demonstrate Delete / Remove.</div>
+                <div>Show the updated results in the interface after each action.</div>
+              </div>
+            </div>
+            <div class="card">
+              <h3>How This Meets the Requirement</h3>
+              <div class="list">
+                <div>Demonstrates that the application works through the interface instead of manual SQL tools.</div>
+                <div>Covers all four required operations: select, insert, update, and delete.</div>
+                <div>Connects the database design to actual user actions in the system.</div>
+                <div>Fits the final presentation format with a clear and manageable demo sequence.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Conclusion">
+          <div class="eyebrow">Wrap-Up</div>
+          <h2 class="section-heading">Conclusion and Contribution Statement</h2>
+          <div class="grid">
+            <div class="card">
+              <h3>Project Outcome</h3>
+              <div class="list">
+                <div class="accent-green">Complete MySQL-backed database application</div>
+                <div>At least two business functions implemented</div>
+                <div>Full CRUD through the interface</div>
+                <div>Reasonable scope for a course final project</div>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Contribution Statement</h3>
+              <div class="list">
+                <div>Jian Zhang and Xintong Yu worked together on the database design, application development, testing, presentation preparation, and final demo.</div>
+              </div>
+            </div>
+          </div>
+          <div class="tag-row">
+            <span class="tag">Questions?</span>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="preview-overlay" id="preview-overlay" aria-hidden="true">
+    <div class="preview-shell">
+      <div class="preview-head">
+        <div class="preview-title">
+          <div class="dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div>
+            <strong id="preview-name">Preview</strong>
+            <div class="preview-url" id="preview-url">/</div>
+          </div>
+        </div>
+        <button class="preview-close" id="preview-close" type="button">Close</button>
+      </div>
+      <iframe class="preview-frame" id="preview-frame" src="/" title="Fullscreen preview"></iframe>
+    </div>
+  </div>
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const slideList = document.getElementById('slide-list');
+    const counter = document.getElementById('slide-counter');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const menuBtn = document.getElementById('menu-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const previewOverlay = document.getElementById('preview-overlay');
+    const previewFrame = document.getElementById('preview-frame');
+    const previewName = document.getElementById('preview-name');
+    const previewUrl = document.getElementById('preview-url');
+    const previewClose = document.getElementById('preview-close');
+    let current = 0;
+
+    slides.forEach((slide, index) => {
+      const btn = document.createElement('button');
+      btn.className = 'slide-link';
+      btn.innerHTML = `<span>Slide ${index + 1}</span>${slide.dataset.title}`;
+      btn.addEventListener('click', () => {
+        goTo(index);
+        sidebar.classList.remove('open');
+      });
+      slideList.appendChild(btn);
+    });
+
+    const navButtons = [...document.querySelectorAll('.slide-link')];
+
+    function render() {
+      slides.forEach((slide, index) => slide.classList.toggle('active', index === current));
+      navButtons.forEach((btn, index) => btn.classList.toggle('active', index === current));
+      counter.textContent = `Slide ${current + 1} / ${slides.length}`;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
+    }
+
+    function goTo(index) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      render();
+    }
+
+    prevBtn.addEventListener('click', () => goTo(current - 1));
+    nextBtn.addEventListener('click', () => goTo(current + 1));
+    menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+    document.querySelectorAll('[data-preview-src]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const src = trigger.getAttribute('data-preview-src');
+        const name = trigger.getAttribute('data-preview-name') || 'Preview';
+        const resolved = new URL(src, window.location.origin);
+        previewFrame.src = resolved.toString();
+        previewName.textContent = name.toUpperCase();
+        previewUrl.textContent = resolved.pathname + resolved.search;
+        previewOverlay.classList.add('open');
+        previewOverlay.setAttribute('aria-hidden', 'false');
+      });
+    });
+
+    function closePreview() {
+      previewOverlay.classList.remove('open');
+      previewOverlay.setAttribute('aria-hidden', 'true');
+      previewFrame.src = 'about:blank';
+    }
+
+    previewClose.addEventListener('click', closePreview);
+    previewOverlay.addEventListener('click', (event) => {
+      if (event.target === previewOverlay) closePreview();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && previewOverlay.classList.contains('open')) {
+        closePreview();
+        return;
+      }
+      if (event.key === 'ArrowRight' || event.key === 'PageDown') goTo(current + 1);
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') goTo(current - 1);
+      if (event.key === 'Home') goTo(0);
+      if (event.key === 'End') goTo(slides.length - 1);
+      if (event.key.toLowerCase() === 'm') sidebar.classList.toggle('open');
+    });
+
+    render();
+  </script>
+</body>
+</html>

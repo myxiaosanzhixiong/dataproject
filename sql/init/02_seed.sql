@@ -10,7 +10,8 @@ INSERT INTO Traders (name, email, phone, role) VALUES
 ('Bob Zhang',    'bob.zhang@firm.com',    '+1-212-555-0102', 'prop_trader'),
 ('Carol Liu',    'carol.liu@firm.com',    '+1-212-555-0103', 'risk_officer'),
 ('David Wang',   'david.wang@firm.com',   '+1-212-555-0104', 'prop_trader'),
-('Eva Nguyen',   'eva.nguyen@firm.com',   '+1-212-555-0105', 'fund_manager');
+('Eva Nguyen',   'eva.nguyen@firm.com',   '+1-212-555-0105', 'fund_manager'),
+('Tina Xu',      'tina.xu@firm.com',      '+1-212-555-0106', 'fund_manager');
 
 -- Counterparties
 INSERT INTO Counterparties (name, type, country, credit_rating) VALUES
@@ -40,7 +41,8 @@ INSERT INTO Accounts (account_name, account_type, base_currency, trader_id) VALU
 ('Asia Opportunities Fund',   'fund',          'USD', 5),
 ('Prop Desk Alpha',           'proprietary',   'USD', 2),
 ('Prop Desk Beta',            'proprietary',   'USD', 4),
-('Fixed Income Custody',      'custody',       'USD', 1);
+('Fixed Income Custody',      'custody',       'USD', 1),
+('Tina Growth Fund',          'fund',          'USD', 6);
 
 -- Transactions
 INSERT INTO Transactions (account_id, asset_id, counterparty_id, trade_type, direction, quantity, execution_price, currency, traded_at) VALUES
@@ -55,7 +57,9 @@ INSERT INTO Transactions (account_id, asset_id, counterparty_id, trade_type, dir
 (5, 6,  5, 'bond', 'buy', 50000,   98.50, 'USD', '2026-03-05 09:00:00'),
 (1, 1,  1, 'spot', 'sell', 1000,  191.00, 'USD', '2026-03-10 15:00:00'),
 (3, 9,  3, 'futures','sell',20,  5250.00, 'USD', '2026-03-15 13:30:00'),
-(4, 3,  2, 'spot', 'sell', 500,   252.00, 'USD', '2026-03-18 10:45:00');
+(4, 3,  2, 'spot', 'sell', 500,   252.00, 'USD', '2026-03-18 10:45:00'),
+(6, 7,  2, 'spot', 'buy', 250000,  1.082, 'USD', '2026-03-19 09:20:00'),
+(6, 5,  3, 'spot', 'buy',   1200, 441.50, 'USD', '2026-03-19 09:45:00');
 
 -- Holdings  (net positions derived from transactions above)
 INSERT INTO Holdings (account_id, asset_id, net_quantity, avg_cost_price) VALUES
@@ -67,7 +71,9 @@ INSERT INTO Holdings (account_id, asset_id, net_quantity, avg_cost_price) VALUES
 (3, 8,    20, 2310.00),  -- Gold futures
 (4, 3,  3500, 238.00),   -- TSLA (4000 - 500 sold)
 (4, 5,  1500, 440.00),   -- QQQ
-(5, 6, 50000,  98.50);   -- US10Y bond
+(5, 6, 50000,  98.50),   -- US10Y bond
+(6, 7, 250000,   1.082), -- EURUSD
+(6, 5,   1200, 441.50);  -- QQQ
 
 -- Risk Limits
 INSERT INTO Risk_Limits (account_id, asset_id, asset_class, max_position, max_concentration, alert_threshold) VALUES
@@ -79,4 +85,6 @@ INSERT INTO Risk_Limits (account_id, asset_id, asset_class, max_position, max_co
 (3,    9,  NULL,          100,    NULL,  75.00),   -- ES1 futures max 100 contracts
 (3, NULL, 'commodity',   5000000, 20.00, 80.00),   -- Commodity notional limit
 (4,    3,  NULL,        10000,    NULL,  80.00),   -- TSLA max 10k shares
-(5, NULL, 'bond',      100000000, 80.00, 85.00);   -- Fixed income limit
+(5, NULL, 'bond',      100000000, 80.00, 85.00),   -- Fixed income limit
+(6,    5,  NULL,         3000,    NULL,  80.00),   -- Tina's QQQ limit
+(6, NULL, 'fx',         500000,   50.00, 80.00);   -- Tina's FX limit

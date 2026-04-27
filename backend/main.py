@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Optional
 from jose import JWTError, jwt
 import bcrypt as _bcrypt
@@ -9,7 +10,7 @@ import pymysql, os, datetime, random, math
 
 # ── DB config ──────────────────────────────────────────────────
 DB = dict(
-    host=os.getenv("DB_HOST", "mysql"),
+    host=os.getenv("DB_HOST", "localhost"),
     port=int(os.getenv("DB_PORT", 3306)),
     user=os.getenv("DB_USER", "trader"),
     password=os.getenv("DB_PASSWORD", "traderpass123"),
@@ -65,6 +66,9 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="Portfolio Management API", lifespan=lifespan)
+BASE_DIR = Path(__file__).resolve().parent.parent
+FRONTEND_DIR = BASE_DIR / "frontend"
+STATIC_DIR = FRONTEND_DIR / "static"
 
 # ── Auth middleware ─────────────────────────────────────────────
 @app.middleware("http")
@@ -103,6 +107,23 @@ def execute(sql: str, args=None):
     finally:
         conn.close()
 
+def paginate_rows(rows, page: Optional[int] = None, page_size: Optional[int] = None):
+    if page is None and page_size is None:
+        return rows
+    page = page or 1
+    page_size = page_size or 8
+    total = len(rows)
+    offset = (page - 1) * page_size
+    items = rows[offset:offset + page_size]
+    total_pages = math.ceil(total / page_size) if total else 1
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
+    }
+
 # ── Login ───────────────────────────────────────────────────────
 @app.post("/api/login")
 def login(body: dict):
@@ -124,8 +145,12 @@ def me(request: Request):
 
 # ── User Management ─────────────────────────────────────────────
 @app.get("/api/users")
-def get_users():
-    return query("SELECT user_id, username, role, created_at FROM Users ORDER BY user_id")
+def get_users(
+    page: Optional[int] = Query(None, ge=1),
+    page_size: Optional[int] = Query(None, ge=1, le=500),
+):
+    rows = query("SELECT user_id, username, role, created_at FROM Users ORDER BY user_id")
+    return paginate_rows(rows, page, page_size)
 
 @app.post("/api/users")
 def create_user(body: dict):
@@ -200,7 +225,15 @@ def portfolio_summary():
 # HOLDINGS
 # ══════════════════════════════════════════════════════════════
 @app.get("/api/holdings")
-def get_holdings(account_id: Optional[int] = None):
+def get_holdings(
+    account_id: Optional[int] = None,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(8, ge=1, le=500),
+    limit: Optional[int] = Query(None, ge=1, le=500),
+):
+    if limit is not None:
+        page_size = limit
+
     sql = """
         SELECT a.account_id, a.account_name,
                ast.ticker, ast.name AS asset_name, ast.asset_class, ast.currency,
@@ -213,23 +246,41 @@ def get_holdings(account_id: Optional[int] = None):
         JOIN Assets   ast ON ast.asset_id  = h.asset_id
         WHERE h.net_quantity <> 0
     """
-    args = ()
+    args = []
     if account_id:
         sql += " AND a.account_id = %s"
-        args = (account_id,)
+        args.append(account_id)
     sql += " ORDER BY unrealized_pnl DESC"
-    return query(sql, args)
+    rows = query(sql, tuple(args))
+    total = len(rows)
+    offset = (page - 1) * page_size
+    items = rows[offset:offset + page_size]
+    total_pages = math.ceil(total / page_size) if total else 1
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
+    }
 
 # ══════════════════════════════════════════════════════════════
 # RISK ALERTS
 # ══════════════════════════════════════════════════════════════
 @app.get("/api/risk/alerts")
-def risk_alerts():
-    rows = query("""
-        SELECT a.account_name,
+def risk_alerts(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(8, ge=1, le=500),
+    limit: Optional[int] = Query(None, ge=1, le=500),
+):
+    if limit is not None:
+        page_size = limit
+
+    base_sql = """
+        SELECT rl.limit_id, a.account_name,
                COALESCE(ast.ticker, '— ALL —')     AS ticker,
                COALESCE(rl.asset_class,'— ALL —')  AS asset_class,
-               rl.max_position, rl.alert_threshold,
+               rl.max_position, rl.max_concentration, rl.alert_threshold,
                COALESCE(h.net_quantity, 0)          AS current_position,
                ROUND(COALESCE(h.net_quantity,0) / rl.max_position * 100, 2) AS utilization_pct,
                CASE
@@ -245,9 +296,27 @@ def risk_alerts():
         LEFT JOIN Holdings h   ON h.account_id = rl.account_id
                                AND (rl.asset_id IS NULL OR h.asset_id = rl.asset_id)
         WHERE rl.is_active = TRUE
-        ORDER BY utilization_pct DESC
-    """)
-    return rows
+    """
+    rows = query(base_sql + " ORDER BY utilization_pct DESC")
+    total = len(rows)
+    total_alerts = sum(1 for row in rows if row["status"] == "ALERT")
+    total_breaches = sum(1 for row in rows if row["status"] == "BREACH")
+    offset = (page - 1) * page_size
+    items = rows[offset:offset + page_size]
+    total_pages = math.ceil(total / page_size) if total else 1
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
+        "totals": {
+            "total_limits": total,
+            "alerts": total_alerts,
+            "breaches": total_breaches,
+        }
+    }
 
 # ══════════════════════════════════════════════════════════════
 # EXPOSURE BY ASSET CLASS
@@ -266,8 +335,30 @@ def exposure():
 # TRANSACTIONS  (CRUD)
 # ══════════════════════════════════════════════════════════════
 @app.get("/api/transactions")
-def get_transactions(account_id: Optional[int] = None, limit: int = Query(50, le=500)):
-    sql = """
+def get_transactions(
+    account_id: Optional[int] = None,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(8, ge=1, le=500),
+    limit: Optional[int] = Query(None, ge=1, le=500),
+):
+    if limit is not None:
+        page_size = limit
+
+    where_sql = ""
+    where_args = []
+    if account_id:
+        where_sql = " WHERE t.account_id = %s"
+        where_args.append(account_id)
+
+    count_sql = f"""
+        SELECT COUNT(*) AS total
+        FROM Transactions t
+        {where_sql}
+    """
+    total = query(count_sql, tuple(where_args))[0]["total"]
+
+    offset = (page - 1) * page_size
+    data_sql = f"""
         SELECT t.transaction_id, a.account_name,
                ast.ticker, t.direction, t.trade_type,
                t.quantity, t.execution_price,
@@ -278,14 +369,20 @@ def get_transactions(account_id: Optional[int] = None, limit: int = Query(50, le
         JOIN Accounts      a   ON a.account_id      = t.account_id
         JOIN Assets        ast ON ast.asset_id       = t.asset_id
         JOIN Counterparties cp ON cp.counterparty_id = t.counterparty_id
+        {where_sql}
+        ORDER BY t.traded_at DESC
+        LIMIT %s OFFSET %s
     """
-    args = []
-    if account_id:
-        sql += " WHERE t.account_id = %s"
-        args.append(account_id)
-    sql += " ORDER BY t.traded_at DESC LIMIT %s"
-    args.append(limit)
-    return query(sql, tuple(args))
+    rows = query(data_sql, tuple(where_args + [page_size, offset]))
+    total_pages = math.ceil(total / page_size) if total else 1
+
+    return {
+        "items": rows,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
+    }
 
 @app.post("/api/transactions")
 def create_transaction(body: dict):
@@ -357,8 +454,17 @@ def _refresh_holding(account_id: int, asset_id: int):
 # MASTER DATA
 # ══════════════════════════════════════════════════════════════
 @app.get("/api/accounts")
-def get_accounts():
-    return query("SELECT account_id, account_name, account_type, base_currency, status FROM Accounts WHERE status='active'")
+def get_accounts(
+    page: Optional[int] = Query(None, ge=1),
+    page_size: Optional[int] = Query(None, ge=1, le=500),
+):
+    rows = query("""
+        SELECT account_id, account_name, account_type, base_currency, trader_id, status
+        FROM Accounts
+        WHERE status='active'
+        ORDER BY account_name
+    """)
+    return paginate_rows(rows, page, page_size)
 
 @app.post("/api/accounts")
 def create_account(body: dict):
@@ -381,8 +487,12 @@ def deactivate_account(account_id: int):
     return {"closed": account_id}
 
 @app.get("/api/assets")
-def get_assets():
-    return query("SELECT asset_id, ticker, name, asset_class, market, currency, last_price, status FROM Assets WHERE status='active' ORDER BY ticker")
+def get_assets(
+    page: Optional[int] = Query(None, ge=1),
+    page_size: Optional[int] = Query(None, ge=1, le=500),
+):
+    rows = query("SELECT asset_id, ticker, name, asset_class, market, currency, last_price, status FROM Assets WHERE status='active' ORDER BY ticker")
+    return paginate_rows(rows, page, page_size)
 
 @app.post("/api/assets")
 def create_asset(body: dict):
@@ -414,8 +524,12 @@ def delist_asset(asset_id: int):
     return {"delisted": asset_id}
 
 @app.get("/api/counterparties")
-def get_counterparties():
-    return query("SELECT * FROM Counterparties WHERE status='active' ORDER BY name")
+def get_counterparties(
+    page: Optional[int] = Query(None, ge=1),
+    page_size: Optional[int] = Query(None, ge=1, le=500),
+):
+    rows = query("SELECT * FROM Counterparties WHERE status='active' ORDER BY name")
+    return paginate_rows(rows, page, page_size)
 
 @app.post("/api/counterparties")
 def create_counterparty(body: dict):
@@ -438,8 +552,33 @@ def deactivate_counterparty(cp_id: int):
     return {"deactivated": cp_id}
 
 @app.get("/api/traders")
-def get_traders():
-    return query("SELECT trader_id, name, email, role, status FROM Traders ORDER BY name")
+def get_traders(
+    page: Optional[int] = Query(None, ge=1),
+    page_size: Optional[int] = Query(None, ge=1, le=500),
+):
+    rows = query("SELECT trader_id, name, email, role, status FROM Traders ORDER BY name")
+    return paginate_rows(rows, page, page_size)
+
+@app.post("/api/traders")
+def create_trader(body: dict):
+    required = ["name", "email", "role"]
+    for f in required:
+        if not str(body.get(f, "")).strip():
+            raise HTTPException(400, f"{f} required")
+    try:
+        trader_id = execute("""
+            INSERT INTO Traders (name, email, phone, role, status)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (
+            body["name"].strip(),
+            body["email"].strip(),
+            body.get("phone", "").strip() or None,
+            body["role"],
+            body.get("status", "active"),
+        ))
+    except pymysql.IntegrityError:
+        raise HTTPException(409, "Trader email already exists")
+    return {"trader_id": trader_id}
 
 # ══════════════════════════════════════════════════════════════
 # RISK LIMITS CRUD
@@ -586,8 +725,13 @@ def watchlist():
 # ══════════════════════════════════════════════════════════════
 # STATIC FRONTEND
 # ══════════════════════════════════════════════════════════════
-app.mount("/static", StaticFiles(directory="/app/frontend/static"), name="static")
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.get("/")
 def root():
-    return FileResponse("/app/frontend/index.html")
+    return FileResponse(str(FRONTEND_DIR / "index.html"))
+
+@app.get("/presentation")
+def presentation():
+    return FileResponse(str(FRONTEND_DIR / "presentation.html"))

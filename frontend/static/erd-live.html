@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Management ER Diagram</title>
+  <style>
+    :root{
+      --bg:#07131a;
+      --panel:#0c2028;
+      --brand:#21C0B1;
+      --brand-light:rgba(33,192,177,.12);
+      --brand-mid:rgba(33,192,177,.28);
+      --brand-strong:rgba(33,192,177,.72);
+      --brand-text:#7ef0e8;
+      --muted:#9ecbc6;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      color:#eaf9f7;
+      background:
+        radial-gradient(circle at top left, rgba(33,192,177,.12), transparent 28%),
+        linear-gradient(180deg, #08151b 0%, #07131a 100%);
+    }
+    .shell{
+      min-height:100%;
+      padding:14px;
+      display:grid;
+      gap:12px;
+    }
+    .hero{
+      display:grid;
+      gap:6px;
+      padding:14px 18px;
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(16,41,48,.92), rgba(8,22,27,.96));
+      border:1px solid rgba(33,192,177,.16);
+      box-shadow:0 20px 44px rgba(0,0,0,.24);
+    }
+    .eyebrow{
+      color:var(--brand);
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+    }
+    h1{
+      margin:0;
+      font-size:24px;
+      line-height:1.05;
+      letter-spacing:-.03em;
+    }
+    p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+    }
+    #erd-wrap{
+      --brand:#21C0B1;
+      --brand-light:rgba(33,192,177,.12);
+      --brand-mid:rgba(33,192,177,.28);
+      --brand-strong:rgba(33,192,177,.72);
+      --brand-text:#7ef0e8;
+      padding:10px;
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(12,32,40,.96), rgba(7,19,26,.98));
+      border:1px solid rgba(33,192,177,.16);
+      box-shadow:0 20px 44px rgba(0,0,0,.24);
+      overflow:auto;
+    }
+    #erd{
+      min-width:1080px;
+    }
+    #erd svg{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    #erd svg .node rect,
+    #erd svg .node path {
+      fill: var(--brand-light) !important;
+      stroke: var(--brand-strong) !important;
+      stroke-width: 1.2px !important;
+    }
+    #erd svg .label-container rect,
+    #erd svg .nodeLabel {
+      fill: rgba(33,192,177,.32) !important;
+    }
+    #erd svg path.er.relationshipLine,
+    #erd svg line.er.relationshipLine {
+      stroke: var(--brand) !important;
+      stroke-width: 1.4px !important;
+    }
+    #erd svg .er.relationshipLabelBox rect {
+      fill: var(--brand-light) !important;
+      stroke: var(--brand-mid) !important;
+    }
+    #erd svg text {
+      fill: var(--brand-text) !important;
+    }
+    #erd svg .row-rect-odd path,
+    #erd svg .row-rect-even path {
+      stroke:none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="hero">
+      <div class="eyebrow">Database Design</div>
+      <h1>Institutional Trader Portfolio Management E-R Diagram</h1>
+      <p>This HTML-based diagram presents the main entities and their relationships in our MySQL schema, including traders, accounts, assets, counterparties, transactions, holdings, and risk limits.</p>
+    </div>
+    <div id="erd-wrap">
+      <div id="erd"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    await document.fonts.ready;
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      fontFamily: 'Arial, sans-serif',
+      themeVariables: {
+        darkMode: true,
+        fontSize: '13px',
+        fontFamily: 'Arial, sans-serif',
+        primaryColor: 'rgba(33,192,177,.18)',
+        primaryBorderColor: 'rgba(33,192,177,.7)',
+        primaryTextColor: '#7ef0e8',
+        lineColor: '#21C0B1',
+        edgeLabelBackground: 'rgba(33,192,177,.12)',
+        attributeBackgroundColorEven: 'rgba(33,192,177,.06)',
+        attributeBackgroundColorOdd: 'rgba(33,192,177,.13)',
+        nodeBorder: 'rgba(33,192,177,.7)',
+        clusterBkg: 'rgba(33,192,177,.08)',
+        titleColor: '#7ef0e8',
+        tertiaryColor: 'rgba(33,192,177,.08)'
+      }
+    });
+
+    const diagram = `erDiagram
+      Traders {
+        int trader_id PK
+        varchar name
+        varchar email
+        enum role
+        enum status
+      }
+      Accounts {
+        int account_id PK
+        varchar account_name
+        enum account_type
+        char base_currency
+        int trader_id FK
+        enum status
+      }
+      Assets {
+        int asset_id PK
+        varchar ticker
+        varchar name
+        enum asset_class
+        varchar market
+        char currency
+        decimal last_price
+        enum status
+      }
+      Counterparties {
+        int counterparty_id PK
+        varchar name
+        enum type
+        varchar country
+        varchar credit_rating
+        enum status
+      }
+      Transactions {
+        int transaction_id PK
+        int account_id FK
+        int asset_id FK
+        int counterparty_id FK
+        enum trade_type
+        enum direction
+        decimal quantity
+        decimal execution_price
+        enum status
+        datetime traded_at
+      }
+      Holdings {
+        int holding_id PK
+        int account_id FK
+        int asset_id FK
+        decimal net_quantity
+        decimal avg_cost_price
+      }
+      Risk_Limits {
+        int limit_id PK
+        int account_id FK
+        int asset_id FK
+        enum asset_class
+        decimal max_position
+        decimal max_concentration
+        decimal alert_threshold
+        boolean is_active
+      }
+
+      Traders ||--o{ Accounts : "manages"
+      Accounts ||--o{ Transactions : "executes"
+      Accounts ||--o{ Holdings : "holds"
+      Accounts ||--o{ Risk_Limits : "governed by"
+      Assets ||--o{ Transactions : "traded in"
+      Assets ||--o{ Holdings : "held as"
+      Assets ||--o{ Risk_Limits : "limited by"
+      Counterparties ||--o{ Transactions : "party to"
+    `;
+
+    const { svg } = await mermaid.render('erd-svg-live', diagram);
+    document.getElementById('erd').innerHTML = svg;
+
+    document.querySelectorAll('#erd svg .node').forEach(node => {
+      const firstPath = node.querySelector('path[d]');
+      if (!firstPath) return;
+      const d = firstPath.getAttribute('d');
+      const nums = d.match(/-?[\\d.]+/g)?.map(Number);
+      if (!nums || nums.length < 8) return;
+      const xs = [nums[0], nums[2], nums[4], nums[6]];
+      const ys = [nums[1], nums[3], nums[5], nums[7]];
+      const x = Math.min(...xs), y = Math.min(...ys);
+      const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x);
+      rect.setAttribute('y', y);
+      rect.setAttribute('width', w);
+      rect.setAttribute('height', h);
+      rect.setAttribute('rx', '8');
+      for (const attr of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+        if (firstPath.hasAttribute(attr)) rect.setAttribute(attr, firstPath.getAttribute(attr));
+      }
+      firstPath.replaceWith(rect);
+    });
+  </script>
+</body>
+</html>

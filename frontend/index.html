@@ -7,35 +7,45 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <style>
   :root {
-    --bg:#0d1117; --surface:#161b22; --surface2:#1c2128; --border:#30363d;
-    --text:#e6edf3; --muted:#8b949e; --green:#3fb950; --red:#f85149;
-    --yellow:#d29922; --blue:#58a6ff; --purple:#bc8cff; --accent:#1f6feb;
+    --bg:#08131a; --surface:#10212a; --surface2:#16303b; --surface3:#1d4452;
+    --border:#285064; --text:#ecf7f8; --muted:#8fb3be; --green:#5ed89a;
+    --red:#ff7a7a; --yellow:#f2c36b; --blue:#79d5ff; --teal:#4dc4c7;
+    --accent:#1fa4b8; --accent-strong:#157d91; --shadow:0 18px 50px rgba(1,14,20,.34);
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;}
+  body{
+    background:
+      radial-gradient(circle at top left, rgba(77,196,199,.17), transparent 28%),
+      radial-gradient(circle at top right, rgba(121,213,255,.15), transparent 24%),
+      linear-gradient(180deg, #071219 0%, #0a1820 35%, #08131a 100%);
+    color:var(--text);
+    font-family:'Trebuchet MS','Segoe UI',system-ui,sans-serif;
+    font-size:14px;
+    min-height:100vh;
+  }
 
   /* Nav */
-  nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;
-      display:flex;align-items:center;gap:24px;height:56px;position:sticky;top:0;z-index:100;}
-  .nav-brand{font-size:15px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:8px;white-space:nowrap;}
+  nav{background:rgba(9,23,30,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(121,213,255,.16);padding:0 24px;
+      display:flex;align-items:center;gap:24px;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 12px 28px rgba(4,12,18,.24);}
+  .nav-brand{font-size:15px;font-weight:800;color:var(--blue);display:flex;align-items:center;gap:10px;white-space:nowrap;letter-spacing:.04em;text-transform:uppercase;}
   .nav-brand svg{width:20px;height:20px;}
   .nav-tabs{display:flex;gap:2px;}
-  .tab{padding:6px 14px;border-radius:6px;cursor:pointer;color:var(--muted);transition:all .15s;border:none;background:none;font-size:13px;}
-  .tab:hover{color:var(--text);background:rgba(255,255,255,.05);}
-  .tab.active{color:var(--text);background:var(--accent);}
+  .tab{padding:8px 14px;border-radius:999px;cursor:pointer;color:var(--muted);transition:all .15s;border:1px solid transparent;background:none;font-size:13px;}
+  .tab:hover{color:var(--text);background:rgba(121,213,255,.08);border-color:rgba(121,213,255,.12);}
+  .tab.active{color:#062028;background:linear-gradient(135deg, var(--blue), var(--teal));font-weight:700;}
   .nav-time{margin-left:auto;color:var(--muted);font-size:12px;white-space:nowrap;}
 
   /* Layout */
-  main{padding:24px;max-width:1440px;margin:0 auto;}
+  main{padding:28px 24px 40px;max-width:1460px;margin:0 auto;}
   .page{display:none;} .page.active{display:block;}
-  #page-trading{position:fixed;top:56px;left:0;right:0;bottom:0;z-index:10;display:none;}
+  #page-trading{position:fixed;top:64px;left:0;right:0;bottom:0;z-index:10;display:none;}
   #page-trading.active{display:block;}
 
   /* KPI */
   .kpi-row{display:grid;gap:16px;margin-bottom:24px;}
   .kpi-4{grid-template-columns:repeat(4,1fr);}
   .kpi-3{grid-template-columns:repeat(3,1fr);}
-  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+  .kpi{background:linear-gradient(180deg, rgba(18,40,50,.94), rgba(13,28,36,.96));border:1px solid rgba(121,213,255,.13);border-radius:18px;padding:22px;box-shadow:var(--shadow);}
   .kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px;}
   .kpi-value{font-size:26px;font-weight:700;line-height:1;}
   .kpi-sub{font-size:12px;margin-top:6px;color:var(--muted);}
@@ -43,17 +53,17 @@
 
   /* Grid */
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+  .card{background:linear-gradient(180deg, rgba(16,33,42,.94), rgba(12,25,32,.97));border:1px solid rgba(121,213,255,.12);border-radius:18px;padding:20px;box-shadow:var(--shadow);}
   .card-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:16px;}
 
   /* Table */
   .tbl-wrap{overflow-x:auto;}
   table{width:100%;border-collapse:collapse;}
   th{text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.7px;
-     color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
-  td{padding:10px 12px;border-bottom:1px solid rgba(48,54,61,.5);white-space:nowrap;}
+     color:var(--muted);border-bottom:1px solid rgba(121,213,255,.12);white-space:nowrap;}
+  td{padding:10px 12px;border-bottom:1px solid rgba(121,213,255,.08);white-space:nowrap;}
   tr:last-child td{border-bottom:none;}
-  tr:hover td{background:rgba(255,255,255,.02);}
+  tr:hover td{background:rgba(121,213,255,.04);}
 
   /* Badges */
   .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;}
@@ -65,19 +75,29 @@
   .badge-info  {background:rgba(88,166,255,.12);color:var(--blue);}
 
   /* Card full */
-  .card-full{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;}
+  .card-full{background:linear-gradient(180deg, rgba(16,33,42,.94), rgba(12,25,32,.97));border:1px solid rgba(121,213,255,.12);border-radius:18px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow);}
   .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
   .card-header h3{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;}
   .card-header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .table-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;}
+  .table-meta{font-size:12px;color:var(--muted);}
+  .pager{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .pager-pages{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .pager-status{font-size:12px;color:var(--muted);min-width:90px;text-align:center;}
+  .pager-ellipsis{font-size:12px;color:var(--muted);padding:0 2px;}
 
   /* Buttons */
-  .btn{padding:7px 16px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:500;transition:opacity .15s;}
-  .btn-primary{background:var(--accent);color:#fff;}
+  .btn{padding:8px 16px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;}
+  .btn:hover{transform:translateY(-1px);}
+  .btn-primary{background:linear-gradient(135deg, var(--accent), var(--accent-strong));color:#fff;box-shadow:0 10px 24px rgba(31,164,184,.24);}
   .btn-primary:hover{opacity:.85;}
   .btn-warning{background:rgba(210,153,34,.2);color:var(--yellow);border:1px solid var(--yellow);}
   .btn-danger {background:rgba(248,81,73,.15);color:var(--red);border:1px solid rgba(248,81,73,.4);}
   .btn-ghost  {background:rgba(255,255,255,.06);color:var(--text);}
   .btn-sm{padding:4px 10px;font-size:12px;border-radius:4px;}
+  .btn-page{min-width:34px;padding:4px 8px;}
+  .btn-page.active{background:linear-gradient(135deg, var(--blue), var(--teal));color:#062028;font-weight:700;}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;}
 
   /* Sub-tabs */
   .sub-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0;}
@@ -89,16 +109,16 @@
   /* Modal */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;align-items:center;justify-content:center;}
   .modal-overlay.open{display:flex;}
-  .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;
+  .modal{background:linear-gradient(180deg, rgba(16,33,42,.98), rgba(12,25,32,.98));border:1px solid rgba(121,213,255,.14);border-radius:18px;padding:28px;
          width:500px;max-height:90vh;overflow-y:auto;}
   .modal h2{font-size:16px;margin-bottom:20px;}
   .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .form-group{display:flex;flex-direction:column;gap:6px;}
   .form-group.full{grid-column:1/-1;}
   label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
-  input,select,textarea{background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  input,select,textarea{background:rgba(6,16,22,.82);border:1px solid rgba(121,213,255,.14);border-radius:10px;
     padding:8px 10px;color:var(--text);font-size:13px;width:100%;}
-  input:focus,select:focus{outline:none;border-color:var(--accent);}
+  input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(121,213,255,.12);}
   .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
 
   /* Progress */
@@ -113,11 +133,75 @@
   @media(max-width:900px){
     .kpi-4,.kpi-3{grid-template-columns:1fr 1fr;}
     .grid2{grid-template-columns:1fr;}
+    .hero{grid-template-columns:1fr;}
+    .dashboard-kpis,.dashboard-grid,.hero-band,.dashboard-spotlight,.account-pulse-meta{grid-template-columns:1fr 1fr;}
+    .hero-side-grid{grid-template-columns:1fr;}
   }
+  @media(max-width:680px){
+    .dashboard-kpis,.dashboard-grid,.hero-band,.dashboard-spotlight,.account-pulse-meta{grid-template-columns:1fr;}
+    .hero h1{font-size:32px;}
+  }
+
+  .hero{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.85fr);gap:12px;margin-bottom:16px;align-items:stretch;}
+  .hero-card{position:relative;overflow:hidden;padding:18px 20px;border-radius:22px;border:1px solid rgba(121,213,255,.18);background:radial-gradient(circle at 82% 18%, rgba(121,213,255,.18), transparent 22%),radial-gradient(circle at 18% 0%, rgba(94,216,154,.1), transparent 28%),linear-gradient(135deg, rgba(18,56,68,.98), rgba(8,20,27,.98));box-shadow:0 20px 46px rgba(1,14,20,.32);}
+  .hero-card::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg, rgba(255,255,255,.06), transparent 38%, transparent 62%, rgba(255,255,255,.04));pointer-events:none;}
+  .hero-card::after{content:'';position:absolute;right:-34px;bottom:-42px;width:210px;height:210px;background:radial-gradient(circle, rgba(94,216,154,.16), transparent 60%);pointer-events:none;}
+  .hero-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:#c6f5ff;margin-bottom:8px;}
+  .hero h1{font-size:24px;line-height:1.04;max-width:14ch;margin-bottom:6px;}
+  .hero p{color:#c2dde5;max-width:52ch;line-height:1.4;font-size:12px;}
+  .hero-pill-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;}
+  .hero-pill{padding:10px 12px;border-radius:14px;border:1px solid rgba(121,213,255,.12);background:rgba(6,18,24,.34);color:#ecfbff;font-size:11px;}
+  .hero-pill strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:4px;font-weight:600;}
+  .hero-band{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+  .hero-band-item{padding:10px 11px;border-radius:14px;background:rgba(6,18,24,.42);border:1px solid rgba(121,213,255,.12);}
+  .hero-band-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;}
+  .hero-band-value{font-size:15px;font-weight:700;color:#f4feff;line-height:1.15;}
+  .hero-side{display:grid;gap:10px;}
+  .hero-side-card{padding:16px;border-radius:18px;background:linear-gradient(180deg, rgba(14,31,39,.96), rgba(9,20,27,.98));border:1px solid rgba(121,213,255,.12);box-shadow:var(--shadow);}
+  .hero-side-label{font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);margin-bottom:8px;}
+  .hero-side-value{font-size:24px;font-weight:700;line-height:1.02;}
+  .hero-side-copy{color:#a8c7d0;line-height:1.45;font-size:12px;margin-top:8px;}
+  .hero-side-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .hero-mini-card{padding:13px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(121,213,255,.1);}
+  .hero-mini-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;}
+  .hero-mini-value{font-size:16px;font-weight:700;}
+  .hero-mini-copy{font-size:12px;color:#9dbbc4;margin-top:6px;line-height:1.45;}
+  .dashboard-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px;}
+  .kpi.dashboard-kpi{position:relative;overflow:hidden;padding:18px 18px 16px;}
+  .kpi.dashboard-kpi::after{content:'';position:absolute;inset:auto -30px -44px auto;width:140px;height:140px;background:radial-gradient(circle, rgba(121,213,255,.09), transparent 65%);pointer-events:none;}
+  .dashboard-kpi-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px;}
+  .dashboard-kpi-icon{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:rgba(121,213,255,.1);border:1px solid rgba(121,213,255,.14);font-size:12px;color:#dff9ff;}
+  .dashboard-kpi-trend{font-size:11px;color:var(--muted);padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(121,213,255,.08);}
+  .dashboard-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:12px;margin-bottom:16px;align-items:start;}
+  .dashboard-panel{background:linear-gradient(180deg, rgba(16,33,42,.96), rgba(10,24,31,.98));border:1px solid rgba(121,213,255,.12);border-radius:20px;padding:12px;box-shadow:var(--shadow);}
+  .dashboard-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+  .dashboard-panel-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);margin-bottom:3px;}
+  .dashboard-panel-title{font-size:16px;font-weight:700;color:#f3fdff;line-height:1.1;}
+  .dashboard-panel-copy{font-size:11px;color:#9ebdc6;line-height:1.3;max-width:34ch;}
+  .dashboard-chart-shell{min-height:250px;margin-bottom:10px;}
+  .dashboard-signal-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .signal-chip{padding:10px 11px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(121,213,255,.1);}
+  .signal-chip-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;}
+  .signal-chip-value{font-size:15px;font-weight:700;line-height:1.15;}
+  .signal-chip-copy{margin-top:4px;font-size:11px;color:#9dbbc6;line-height:1.3;}
+  .dashboard-spotlight{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .spotlight-card{padding:10px 11px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(121,213,255,.1);}
+  .spotlight-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;}
+  .spotlight-value{font-size:15px;font-weight:700;line-height:1.15;}
+  .spotlight-copy{margin-top:4px;font-size:11px;color:#9dbdc6;line-height:1.3;}
+  .dashboard-account-list{display:grid;gap:10px;}
+  .account-pulse{padding:13px 14px;border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));border:1px solid rgba(121,213,255,.08);}
+  .account-pulse-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;}
+  .account-pulse-name{font-weight:700;font-size:15px;color:#f2fdff;}
+  .account-pulse-type{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-top:3px;}
+  .account-pulse-pnl{font-size:16px;font-weight:700;text-align:right;}
+  .account-pulse-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .account-pulse-meta span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:4px;}
+  .account-pulse-meta strong{font-size:14px;color:#edf9fb;}
 
   /* ── Trading Layout ─────────────────────────── */
   .trading-wrap{display:grid;grid-template-columns:220px 1fr 300px;gap:0;height:calc(100vh - 56px);overflow:hidden;}
-  .watchlist-panel{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+  .watchlist-panel{background:linear-gradient(180deg, rgba(16,33,42,.98), rgba(11,24,32,.98));border-right:1px solid rgba(121,213,255,.1);display:flex;flex-direction:column;overflow:hidden;}
   .watchlist-search{padding:10px;border-bottom:1px solid var(--border);}
   .watchlist-search input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;
     padding:6px 10px;color:var(--text);font-size:12px;outline:none;}
@@ -133,7 +217,7 @@
   .watch-chg{font-size:11px;margin-top:1px;}
 
   .chart-panel{display:flex;flex-direction:column;background:var(--bg);overflow:hidden;}
-  .chart-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .chart-header{padding:14px 20px;border-bottom:1px solid rgba(121,213,255,.1);background:rgba(16,33,42,.92);display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
   .chart-ticker{font-size:20px;font-weight:800;color:var(--text);}
   .chart-price{font-size:24px;font-weight:700;}
   .chart-meta{font-size:12px;color:var(--muted);}
@@ -143,7 +227,7 @@
   .period-btn.active{background:var(--accent);color:#fff;}
   #trading-chart{flex:1;min-height:0;}
 
-  .order-panel{background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+  .order-panel{background:linear-gradient(180deg, rgba(16,33,42,.98), rgba(11,24,32,.98));border-left:1px solid rgba(121,213,255,.1);display:flex;flex-direction:column;overflow-y:auto;}
   .order-header{padding:16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;color:var(--text);}
   .order-body{padding:16px;display:flex;flex-direction:column;gap:12px;}
   .dir-toggle{display:grid;grid-template-columns:1fr 1fr;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
@@ -167,23 +251,44 @@
   .recent-trade-row{display:grid;grid-template-columns:1fr 1fr 1fr;padding:6px 16px;font-size:11px;border-bottom:1px solid rgba(48,54,61,.3);}
 
   /* Login */
-  #login-screen{position:fixed;inset:0;background:var(--bg);z-index:999;
-    display:flex;align-items:center;justify-content:center;}
+  #login-screen{position:fixed;inset:0;background:
+    radial-gradient(circle at 15% 20%, rgba(121,213,255,.14), transparent 26%),
+    radial-gradient(circle at 85% 18%, rgba(94,216,154,.12), transparent 22%),
+    linear-gradient(180deg, rgba(6,16,22,.98), rgba(8,19,26,.98));z-index:999;
+    display:flex;align-items:center;justify-content:center;padding:28px;}
   #login-screen.hidden{display:none;}
-  .login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;
-    padding:40px 36px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
-  .login-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;justify-content:center;}
-  .login-logo svg{width:28px;height:28px;color:var(--blue);}
-  .login-logo span{font-size:18px;font-weight:700;color:var(--blue);}
-  .login-box h2{font-size:15px;font-weight:600;color:var(--text);text-align:center;margin-bottom:6px;}
-  .login-box p{font-size:12px;color:var(--muted);text-align:center;margin-bottom:28px;}
+  .login-shell{width:min(1120px,100%);display:grid;grid-template-columns:1.05fr .95fr;gap:20px;align-items:stretch;}
+  .login-showcase,.login-box{border:1px solid rgba(121,213,255,.14);border-radius:28px;box-shadow:0 24px 70px rgba(0,0,0,.42);}
+  .login-showcase{position:relative;overflow:hidden;padding:36px;background:
+    radial-gradient(circle at top right, rgba(121,213,255,.18), transparent 28%),
+    linear-gradient(145deg, rgba(18,48,60,.98), rgba(8,20,27,.98));}
+  .login-showcase::after{content:'';position:absolute;right:-30px;bottom:-30px;width:220px;height:220px;background:radial-gradient(circle, rgba(94,216,154,.14), transparent 62%);}
+  .login-eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;}
+  .login-showcase h1{font-size:42px;line-height:1.02;max-width:11ch;margin-bottom:16px;}
+  .login-showcase p{max-width:52ch;color:#b8d6de;line-height:1.7;font-size:14px;}
+  .login-feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;}
+  .login-feature{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(121,213,255,.1);}
+  .login-feature-title{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;}
+  .login-feature-copy{font-size:14px;color:var(--text);line-height:1.45;}
+  .login-stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;}
+  .login-stat{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(121,213,255,.14);font-size:12px;color:#dff8ff;}
+  .login-box{background:linear-gradient(180deg, rgba(16,33,42,.98), rgba(10,24,31,.98));
+    padding:34px 32px;display:flex;flex-direction:column;justify-content:center;}
+  .login-logo{display:flex;align-items:center;gap:10px;margin-bottom:26px;justify-content:flex-start;}
+  .login-logo svg{width:30px;height:30px;color:var(--blue);}
+  .login-logo span{font-size:19px;font-weight:800;color:var(--blue);letter-spacing:.03em;text-transform:uppercase;}
+  .login-box h2{font-size:28px;font-weight:700;color:var(--text);margin-bottom:8px;}
+  .login-box p{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
   .login-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
   .login-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
   .login-field input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;
-    padding:10px 12px;color:var(--text);font-size:14px;outline:none;transition:border-color .15s;}
-  .login-field input:focus{border-color:var(--accent);}
-  #login-btn{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;
-    border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;transition:opacity .15s;}
+    padding:12px 14px;color:var(--text);font-size:14px;outline:none;transition:border-color .15s, box-shadow .15s;}
+  .login-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(121,213,255,.12);}
+  .login-helper{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 10px;}
+  .login-helper span{font-size:12px;color:var(--muted);}
+  .login-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(121,213,255,.08);border:1px solid rgba(121,213,255,.14);color:var(--blue);font-size:11px;text-transform:uppercase;letter-spacing:.12em;}
+  #login-btn{width:100%;padding:11px;background:linear-gradient(135deg, var(--accent), var(--accent-strong));color:#fff;border:none;
+    border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .15s, transform .15s;box-shadow:0 14px 30px rgba(31,164,184,.24);}
   #login-btn:hover{opacity:.85;}
   #login-error{color:var(--red);font-size:12px;text-align:center;margin-top:12px;min-height:18px;}
 
@@ -194,31 +299,70 @@
   .btn-logout{padding:5px 12px;background:rgba(248,81,73,.12);color:var(--red);
     border:1px solid rgba(248,81,73,.3);border-radius:6px;font-size:12px;cursor:pointer;transition:opacity .15s;}
   .btn-logout:hover{opacity:.75;}
+  @media(max-width:980px){
+    .login-shell{grid-template-columns:1fr;}
+    .login-showcase{display:none;}
+    .login-box{max-width:460px;margin:0 auto;width:100%;}
+  }
 </style>
 </head>
 <body>
 
 <!-- ════════ LOGIN SCREEN ════════ -->
 <div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
-      </svg>
-      <span>Portfolio MS</span>
+  <div class="login-shell">
+    <section class="login-showcase">
+      <div class="login-eyebrow">Institutional Trading Demo</div>
+      <h1>Turn a course project into a polished live system.</h1>
+      <p>Track portfolio performance, capture trades, monitor risk, and demonstrate full database CRUD operations through one clean interface. Built for presentation clarity, not just backend completeness.</p>
+      <div class="login-feature-grid">
+        <div class="login-feature">
+          <div class="login-feature-title">Portfolio Ops</div>
+          <div class="login-feature-copy">Holdings, exposure, P&amp;L, and transaction history in one place.</div>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-title">Risk Control</div>
+          <div class="login-feature-copy">Limit monitoring, utilization alerts, and editable risk thresholds.</div>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-title">CRUD Ready</div>
+          <div class="login-feature-copy">Query, create, update, and cancel records directly from the UI.</div>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-title">Presentation Friendly</div>
+          <div class="login-feature-copy">Clean visuals for a smooth walkthrough during your final demo.</div>
+        </div>
+      </div>
+      <div class="login-stat-row">
+        <span class="login-stat">MySQL</span>
+        <span class="login-stat">FastAPI</span>
+        <span class="login-stat">Responsive UI</span>
+      </div>
+    </section>
+    <div class="login-box">
+      <div class="login-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+        </svg>
+        <span>Portfolio MS</span>
+      </div>
+      <h2>Sign In</h2>
+      <p>Access the dashboard, database workflows, and presentation-ready trading interface.</p>
+      <div class="login-helper">
+        <span>Use your assigned system credentials</span>
+        <span class="login-badge">Secure JWT Access</span>
+      </div>
+      <div class="login-field">
+        <label>Username</label>
+        <input id="login-username" type="text" placeholder="Enter your username" autocomplete="username"/>
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input id="login-password" type="password" placeholder="Enter your password" autocomplete="current-password"/>
+      </div>
+      <button id="login-btn" onclick="doLogin()">Sign In</button>
+      <div id="login-error"></div>
     </div>
-    <h2>Welcome Back</h2>
-    <p>Sign in to continue to Portfolio MS</p>
-    <div class="login-field">
-      <label>Username</label>
-      <input id="login-username" type="text" placeholder="Enter your username" autocomplete="username"/>
-    </div>
-    <div class="login-field">
-      <label>Password</label>
-      <input id="login-password" type="password" placeholder="Enter your password" autocomplete="current-password"/>
-    </div>
-    <button id="login-btn" onclick="doLogin()">Sign In</button>
-    <div id="login-error"></div>
   </div>
 </div>
 
@@ -248,15 +392,131 @@
 
 <!-- ════════ DASHBOARD ════════ -->
 <div id="page-dashboard" class="page active">
-  <div class="kpi-row kpi-4">
-    <div class="kpi"><div class="kpi-label">Total Market Value</div><div class="kpi-value" id="kpi-mv">—</div><div class="kpi-sub">USD</div></div>
-    <div class="kpi"><div class="kpi-label">Cost Basis</div><div class="kpi-value" id="kpi-cost">—</div><div class="kpi-sub">USD</div></div>
-    <div class="kpi"><div class="kpi-label">Unrealized P&amp;L</div><div class="kpi-value" id="kpi-pnl">—</div><div class="kpi-sub" id="kpi-pnl-pct">—</div></div>
-    <div class="kpi"><div class="kpi-label">Active Accounts</div><div class="kpi-value" id="kpi-accts">—</div><div class="kpi-sub">portfolios</div></div>
+  <div class="hero">
+    <section class="hero-card">
+      <div class="hero-kicker">Opening Snapshot</div>
+      <h1>Portfolio Dashboard</h1>
+      <p>A tighter morning brief for the book: direction, concentration, and the accounts driving portfolio movement.</p>
+      <div class="hero-pill-row">
+        <span class="hero-pill"><strong>Mode</strong>Live Monitoring</span>
+        <span class="hero-pill"><strong>Focus</strong>Exposure + P&amp;L</span>
+        <span class="hero-pill"><strong>Flow</strong>Query to Action</span>
+      </div>
+      <div class="hero-band">
+        <div class="hero-band-item">
+          <div class="hero-band-label">Book Tone</div>
+          <div class="hero-band-value" id="dash-market-signal">Monitoring</div>
+        </div>
+        <div class="hero-band-item">
+          <div class="hero-band-label">Largest Book</div>
+          <div class="hero-band-value" id="dash-top-account">—</div>
+        </div>
+        <div class="hero-band-item">
+          <div class="hero-band-label">Core Sleeve</div>
+          <div class="hero-band-value" id="dash-top-exposure">—</div>
+        </div>
+      </div>
+    </section>
+    <aside class="hero-side">
+      <div class="hero-side-card">
+        <div class="hero-side-label">Book Snapshot</div>
+        <div class="hero-side-value" id="dash-snapshot-value">—</div>
+        <div class="hero-side-copy" id="dash-snapshot-copy">Refreshing portfolio breadth and account concentration.</div>
+      </div>
+      <div class="hero-side-grid">
+        <div class="hero-mini-card">
+          <div class="hero-mini-label">Winning Accounts</div>
+          <div class="hero-mini-value" id="dash-positive-accounts">—</div>
+          <div class="hero-mini-copy">Accounts currently above cost basis.</div>
+        </div>
+        <div class="hero-mini-card">
+          <div class="hero-mini-label">Asset Mix</div>
+          <div class="hero-mini-value" id="dash-asset-mix">—</div>
+          <div class="hero-mini-copy">Active classes contributing to market value.</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <div class="dashboard-kpis">
+    <div class="kpi dashboard-kpi">
+      <div class="dashboard-kpi-top">
+        <div class="dashboard-kpi-icon">MV</div>
+        <div class="dashboard-kpi-trend">Portfolio Scale</div>
+      </div>
+      <div class="kpi-label">Total Market Value</div>
+      <div class="kpi-value" id="kpi-mv">—</div>
+      <div class="kpi-sub">Gross marked-to-market book value</div>
+    </div>
+    <div class="kpi dashboard-kpi">
+      <div class="dashboard-kpi-top">
+        <div class="dashboard-kpi-icon">CB</div>
+        <div class="dashboard-kpi-trend">Invested Capital</div>
+      </div>
+      <div class="kpi-label">Cost Basis</div>
+      <div class="kpi-value" id="kpi-cost">—</div>
+      <div class="kpi-sub">Aggregated acquisition cost</div>
+    </div>
+    <div class="kpi dashboard-kpi">
+      <div class="dashboard-kpi-top">
+        <div class="dashboard-kpi-icon">PL</div>
+        <div class="dashboard-kpi-trend">Unrealized Move</div>
+      </div>
+      <div class="kpi-label">Unrealized P&amp;L</div>
+      <div class="kpi-value" id="kpi-pnl">—</div>
+      <div class="kpi-sub" id="kpi-pnl-pct">—</div>
+    </div>
+    <div class="kpi dashboard-kpi">
+      <div class="dashboard-kpi-top">
+        <div class="dashboard-kpi-icon">AC</div>
+        <div class="dashboard-kpi-trend">Coverage</div>
+      </div>
+      <div class="kpi-label">Active Accounts</div>
+      <div class="kpi-value" id="kpi-accts">—</div>
+      <div class="kpi-sub">Portfolios contributing to the book</div>
+    </div>
   </div>
   <div class="grid2">
     <div class="card"><div class="card-title">P&amp;L by Account</div><div id="chart-pnl" style="min-height:230px"></div></div>
     <div class="card"><div class="card-title">Exposure by Asset Class</div><div id="chart-exposure" style="min-height:230px"></div></div>
+  </div>
+  <div class="dashboard-grid">
+    <section class="dashboard-panel">
+      <div class="dashboard-panel-head">
+        <div>
+          <div class="dashboard-panel-kicker">Portfolio Signals</div>
+          <div class="dashboard-panel-title">Account Momentum Map</div>
+        </div>
+        <div class="dashboard-panel-copy">Top accounts by market value, with positive and negative return tone shown directly in the bars.</div>
+      </div>
+      <div id="dash-signal-chart" class="dashboard-chart-shell"></div>
+      <div class="dashboard-signal-strip">
+        <div class="signal-chip">
+          <div class="signal-chip-label">Lead Performer</div>
+          <div class="signal-chip-value" id="dash-best-account">—</div>
+          <div class="signal-chip-copy" id="dash-best-account-copy">Waiting for account P&amp;L data.</div>
+        </div>
+        <div class="signal-chip">
+          <div class="signal-chip-label">Pressure Point</div>
+          <div class="signal-chip-value" id="dash-risk-pocket">—</div>
+          <div class="signal-chip-copy" id="dash-risk-pocket-copy">Waiting for exposure mix.</div>
+        </div>
+        <div class="signal-chip">
+          <div class="signal-chip-label">Breadth</div>
+          <div class="signal-chip-value" id="dash-book-breadth">—</div>
+          <div class="signal-chip-copy" id="dash-book-breadth-copy">Tracking class diversification across the book.</div>
+        </div>
+      </div>
+    </section>
+    <section class="dashboard-panel">
+      <div class="dashboard-panel-head">
+        <div>
+          <div class="dashboard-panel-kicker">Account Pulse</div>
+          <div class="dashboard-panel-title">Who Is Moving The Book</div>
+        </div>
+        <div class="dashboard-panel-copy">Top accounts by market value, with cost basis and current contribution at a glance.</div>
+      </div>
+      <div class="dashboard-account-list" id="dash-account-pulse"></div>
+    </section>
   </div>
   <div class="card-full">
     <div class="card-header"><h3>Account Overview</h3></div>
@@ -278,7 +538,7 @@
   <div class="card-full">
     <div class="card-header">
       <h3>Current Holdings</h3>
-      <select id="filter-account" onchange="loadHoldings()" style="width:200px">
+      <select id="filter-account" onchange="onHoldingsFilterChange()" style="width:200px">
         <option value="">All Accounts</option>
       </select>
     </div>
@@ -294,6 +554,15 @@
       </tr></thead>
       <tbody id="tbl-holdings"></tbody>
     </table></div>
+    <div class="table-footer">
+      <div id="holdings-pagination-summary" class="table-meta">Loading holdings...</div>
+      <div class="pager">
+        <button id="holdings-prev-btn" class="btn btn-ghost btn-sm" onclick="changeHoldingsPage(-1)">Previous</button>
+        <div id="holdings-page-buttons" class="pager-pages"></div>
+        <span id="holdings-page-status" class="pager-status">Page 1 / 1</span>
+        <button id="holdings-next-btn" class="btn btn-ghost btn-sm" onclick="changeHoldingsPage(1)">Next</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -303,10 +572,10 @@
     <div class="card-header">
       <h3>Transactions</h3>
       <div class="card-header-right">
-        <select id="filter-txn-account" onchange="loadTransactions()" style="width:180px">
+        <select id="filter-txn-account" onchange="onTransactionsFilterChange()" style="width:180px">
           <option value="">All Accounts</option>
         </select>
-        <button class="btn btn-primary" onclick="openModal('txn-modal')">+ New Trade</button>
+        <button class="btn btn-primary" onclick="openModal_Txn()">+ New Trade</button>
       </div>
     </div>
     <div class="tbl-wrap"><table>
@@ -319,6 +588,15 @@
       </tr></thead>
       <tbody id="tbl-txn"></tbody>
     </table></div>
+    <div class="table-footer">
+      <div id="txn-pagination-summary" class="table-meta">Loading transactions...</div>
+      <div class="pager">
+        <button id="txn-prev-btn" class="btn btn-ghost btn-sm" onclick="changeTransactionsPage(-1)">Previous</button>
+        <div id="txn-page-buttons" class="pager-pages"></div>
+        <span id="txn-page-status" class="pager-status">Page 1 / 1</span>
+        <button id="txn-next-btn" class="btn btn-ghost btn-sm" onclick="changeTransactionsPage(1)">Next</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -332,7 +610,7 @@
   <div class="card-full">
     <div class="card-header">
       <h3>Risk Limit Monitor</h3>
-      <button class="btn btn-primary" onclick="openModal('risk-modal')">+ Add Limit</button>
+      <button class="btn btn-primary" onclick="openModal_Risk()">+ Add Limit</button>
     </div>
     <div class="tbl-wrap"><table>
       <thead><tr>
@@ -345,6 +623,15 @@
       </tr></thead>
       <tbody id="tbl-risk"></tbody>
     </table></div>
+    <div class="table-footer">
+      <div id="risk-pagination-summary" class="table-meta">Loading risk limits...</div>
+      <div class="pager">
+        <button id="risk-prev-btn" class="btn btn-ghost btn-sm" onclick="changeRiskPage(-1)">Previous</button>
+        <div id="risk-page-buttons" class="pager-pages"></div>
+        <span id="risk-page-status" class="pager-status">Page 1 / 1</span>
+        <button id="risk-next-btn" class="btn btn-ghost btn-sm" onclick="changeRiskPage(1)">Next</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -372,6 +659,15 @@
         </tr></thead>
         <tbody id="tbl-assets"></tbody>
       </table></div>
+      <div class="table-footer">
+        <div id="assets-pagination-summary" class="table-meta">Loading assets...</div>
+        <div class="pager">
+          <button id="assets-prev-btn" class="btn btn-ghost btn-sm" onclick="changeMDPage('assets', -1)">Previous</button>
+          <div id="assets-page-buttons" class="pager-pages"></div>
+          <span id="assets-page-status" class="pager-status">Page 1 / 1</span>
+          <button id="assets-next-btn" class="btn btn-ghost btn-sm" onclick="changeMDPage('assets', 1)">Next</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -388,6 +684,15 @@
         </tr></thead>
         <tbody id="tbl-cps"></tbody>
       </table></div>
+      <div class="table-footer">
+        <div id="counterparties-pagination-summary" class="table-meta">Loading counterparties...</div>
+        <div class="pager">
+          <button id="counterparties-prev-btn" class="btn btn-ghost btn-sm" onclick="changeMDPage('counterparties', -1)">Previous</button>
+          <div id="counterparties-page-buttons" class="pager-pages"></div>
+          <span id="counterparties-page-status" class="pager-status">Page 1 / 1</span>
+          <button id="counterparties-next-btn" class="btn btn-ghost btn-sm" onclick="changeMDPage('counterparties', 1)">Next</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -404,17 +709,38 @@
         </tr></thead>
         <tbody id="tbl-accounts-md"></tbody>
       </table></div>
+      <div class="table-footer">
+        <div id="accounts-pagination-summary" class="table-meta">Loading accounts...</div>
+        <div class="pager">
+          <button id="accounts-prev-btn" class="btn btn-ghost btn-sm" onclick="changeMDPage('accounts', -1)">Previous</button>
+          <div id="accounts-page-buttons" class="pager-pages"></div>
+          <span id="accounts-page-status" class="pager-status">Page 1 / 1</span>
+          <button id="accounts-next-btn" class="btn btn-ghost btn-sm" onclick="changeMDPage('accounts', 1)">Next</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Traders -->
   <div id="sub-traders" style="display:none">
     <div class="card-full">
-      <div class="card-header"><h3>Traders</h3></div>
+      <div class="card-header">
+        <h3>Traders</h3>
+        <button class="btn btn-primary" onclick="openModal('trader-modal')">+ Add Trader</button>
+      </div>
       <div class="tbl-wrap"><table>
         <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
         <tbody id="tbl-traders"></tbody>
       </table></div>
+      <div class="table-footer">
+        <div id="traders-pagination-summary" class="table-meta">Loading traders...</div>
+        <div class="pager">
+          <button id="traders-prev-btn" class="btn btn-ghost btn-sm" onclick="changeMDPage('traders', -1)">Previous</button>
+          <div id="traders-page-buttons" class="pager-pages"></div>
+          <span id="traders-page-status" class="pager-status">Page 1 / 1</span>
+          <button id="traders-next-btn" class="btn btn-ghost btn-sm" onclick="changeMDPage('traders', 1)">Next</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -429,6 +755,15 @@
         <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Created At</th><th></th></tr></thead>
         <tbody id="tbl-users"></tbody>
       </table></div>
+      <div class="table-footer">
+        <div id="users-pagination-summary" class="table-meta">Loading users...</div>
+        <div class="pager">
+          <button id="users-prev-btn" class="btn btn-ghost btn-sm" onclick="changeMDPage('users', -1)">Previous</button>
+          <div id="users-page-buttons" class="pager-pages"></div>
+          <span id="users-page-status" class="pager-status">Page 1 / 1</span>
+          <button id="users-next-btn" class="btn btn-ghost btn-sm" onclick="changeMDPage('users', 1)">Next</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -493,9 +828,11 @@
         <div class="order-field">
           <label>Trade Type</label>
           <select id="o-type">
-            <option value="market">Market</option>
-            <option value="limit">Limit</option>
             <option value="spot">Spot</option>
+            <option value="futures">Futures</option>
+            <option value="options">Options</option>
+            <option value="bond">Bond</option>
+            <option value="swap">Swap</option>
           </select>
         </div>
         <div class="order-field">
@@ -661,6 +998,36 @@
   </div>
 </div>
 
+<!-- Add Trader -->
+<div class="modal-overlay" id="trader-modal">
+  <div class="modal">
+    <h2>Add Trader</h2>
+    <div class="form-grid">
+      <div class="form-group full"><label>Name</label><input id="tr-name" placeholder="e.g. Jane Smith"/></div>
+      <div class="form-group"><label>Email</label><input id="tr-email" type="email" placeholder="e.g. jane.smith@firm.com"/></div>
+      <div class="form-group"><label>Phone</label><input id="tr-phone" placeholder="Optional"/></div>
+      <div class="form-group"><label>Role</label>
+        <select id="tr-role">
+          <option value="fund_manager">Fund Manager</option>
+          <option value="prop_trader">Prop Trader</option>
+          <option value="risk_officer">Risk Officer</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Status</label>
+        <select id="tr-status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('trader-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitTrader()">Add Trader</button>
+    </div>
+  </div>
+</div>
+
 <!-- Add Risk Limit -->
 <div class="modal-overlay" id="risk-modal">
   <div class="modal">
@@ -705,6 +1072,10 @@
 
 <script>
 const API = '';
+const URL_PARAMS = new URLSearchParams(window.location.search);
+const DEMO_PREVIEW_MODE = URL_PARAMS.get('demo_preview') === '1';
+const DEMO_PAGE = URL_PARAMS.get('demo_page');
+const DEMO_SUBTAB = URL_PARAMS.get('demo_subtab') || 'assets';
 const fmt  = n => n==null?'—':Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtN = n => n==null?'—':Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
 const pnlCls = v => Number(v)>=0?'pos':'neg';
@@ -737,12 +1108,9 @@ async function doLogin(){
     if(!res.ok){ errEl.textContent = data.detail||'Login failed'; return; }
     setToken(data.access_token);
     localStorage.setItem('pm_user', data.username);
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('nav-username').textContent = data.username;
-    loadDashboard();
-    initFilters();
+    await enterApp(data.username);
   }catch(e){ errEl.textContent='Network error, please try again'; }
-  finally{ btn.disabled=false; btn.textContent='登 录'; }
+  finally{ btn.disabled=false; btn.textContent='Sign In'; }
 }
 
 function doLogout(){
@@ -761,6 +1129,30 @@ document.addEventListener('keydown', e=>{
 // Clock
 setInterval(()=>{ document.getElementById('clock').textContent = new Date().toLocaleTimeString(); },1000);
 
+async function enterApp(username){
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('nav-username').textContent = username;
+  await initFilters();
+  await showPage(DEMO_PAGE || 'dashboard');
+  if((DEMO_PAGE || 'dashboard') === 'masterdata'){
+    showSubTab(DEMO_SUBTAB);
+  }
+}
+
+async function demoAutoLogin(){
+  const res = await fetch('/api/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({username:'admin', password:'admin123'})
+  });
+  if(!res.ok) return false;
+  const data = await res.json();
+  setToken(data.access_token);
+  localStorage.setItem('pm_user', data.username);
+  await enterApp(data.username);
+  return true;
+}
+
 // Check existing token on load
 window.addEventListener('load', async ()=>{
   const token = getToken();
@@ -769,12 +1161,14 @@ window.addEventListener('load', async ()=>{
       const res = await authFetch('/api/me');
       if(res.ok){
         const data = await res.json();
-        document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('nav-username').textContent = data.username;
-        loadDashboard(); initFilters();
+        await enterApp(data.username);
         return;
       }
     }catch(_){}
+  }
+  if(DEMO_PREVIEW_MODE){
+    const ok = await demoAutoLogin();
+    if(ok) return;
   }
   // Show login
   document.getElementById('login-screen').classList.remove('hidden');
@@ -785,17 +1179,17 @@ function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
 // Page routing
-function showPage(name, btn){
+async function showPage(name, btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('nav .tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   if(btn) btn.classList.add('active');
-  if(name==='dashboard')   loadDashboard();
-  if(name==='holdings')    loadHoldings();
-  if(name==='transactions')loadTransactions();
-  if(name==='risk')        loadRisk();
-  if(name==='trading')     loadTrading();
-  if(name==='masterdata')  loadSubTab('assets');
+  if(name==='dashboard')   return loadDashboard();
+  if(name==='holdings')    return loadHoldings();
+  if(name==='transactions')return loadTransactions();
+  if(name==='risk')        return loadRisk();
+  if(name==='trading')     return loadTrading();
+  if(name==='masterdata')  return loadSubTab(DEMO_SUBTAB || 'assets');
 }
 
 // Sub-tab routing
@@ -822,11 +1216,52 @@ async function loadDashboard(){
     authFetch(API+'/api/exposure').then(r=>r.json()),
   ]);
   const t = sum.totals;
+  const accounts = [...sum.accounts];
+  const accountsByMv = [...accounts].sort((a,b)=>(parseFloat(b.market_value)||0)-(parseFloat(a.market_value)||0));
+  const bestAccount = [...accounts].sort((a,b)=>(parseFloat(b.unrealized_pnl)||0)-(parseFloat(a.unrealized_pnl)||0))[0];
+  const positiveAccounts = accounts.filter(a => (parseFloat(a.unrealized_pnl)||0) > 0).length;
+  const topExposure = exp[0];
+  const marketSignal = (parseFloat(t.unrealized_pnl)||0) >= 0 ? 'Constructive' : 'Defensive';
   document.getElementById('kpi-mv').innerHTML   = `$${fmt(t.market_value)}`;
   document.getElementById('kpi-cost').innerHTML = `$${fmt(t.total_cost)}`;
   document.getElementById('kpi-pnl').innerHTML  = `<span class="${pnlCls(t.unrealized_pnl)}">$${fmt(t.unrealized_pnl)}</span>`;
   document.getElementById('kpi-pnl-pct').innerHTML = `<span class="${pnlCls(t.pnl_pct)}">${t.pnl_pct>0?'+':''}${t.pnl_pct}%</span>`;
   document.getElementById('kpi-accts').textContent = sum.accounts.length;
+  document.getElementById('dash-market-signal').textContent = marketSignal;
+  document.getElementById('dash-top-account').textContent = accountsByMv[0]?.account_name?.replace(' Fund','') || '—';
+  document.getElementById('dash-top-exposure').textContent = topExposure ? topExposure.asset_class.toUpperCase() : '—';
+  document.getElementById('dash-snapshot-value').textContent = `${sum.accounts.length} accounts / ${exp.length} classes`;
+  document.getElementById('dash-snapshot-copy').textContent = topExposure
+    ? `${topExposure.asset_class.toUpperCase()} is currently the largest sleeve by market value, with ${positiveAccounts} accounts above cost basis.`
+    : 'Refreshing portfolio breadth and account concentration.';
+  document.getElementById('dash-positive-accounts').textContent = `${positiveAccounts}/${sum.accounts.length}`;
+  document.getElementById('dash-asset-mix').textContent = `${exp.length} classes`;
+  document.getElementById('dash-best-account').textContent = bestAccount?.account_name || '—';
+  document.getElementById('dash-best-account-copy').textContent = bestAccount
+    ? `${bestAccount.pnl_pct>0?'+':''}${bestAccount.pnl_pct}% unrealized return on $${fmt(bestAccount.market_value)} market value.`
+    : 'Waiting for account P&L data.';
+  document.getElementById('dash-risk-pocket').textContent = topExposure ? topExposure.asset_class.toUpperCase() : '—';
+  document.getElementById('dash-risk-pocket-copy').textContent = topExposure
+    ? `$${fmt(topExposure.market_value)} currently sits in the book's largest asset-class allocation.`
+    : 'Waiting for exposure mix.';
+  document.getElementById('dash-book-breadth').textContent = `${sum.accounts.length} / ${exp.length}`;
+  document.getElementById('dash-book-breadth-copy').textContent = `${sum.accounts.length} active accounts spread across ${exp.length} asset classes.`;
+  renderDashboardSignalChart(accountsByMv);
+  document.getElementById('dash-account-pulse').innerHTML = accountsByMv.slice(0,3).map(a=>`
+    <div class="account-pulse">
+      <div class="account-pulse-top">
+        <div>
+          <div class="account-pulse-name">${a.account_name}</div>
+          <div class="account-pulse-type">${a.account_type}</div>
+        </div>
+        <div class="account-pulse-pnl ${pnlCls(a.unrealized_pnl)}">$${fmt(a.unrealized_pnl)}</div>
+      </div>
+      <div class="account-pulse-meta">
+        <div><span>Market Value</span><strong>$${fmt(a.market_value)}</strong></div>
+        <div><span>Cost Basis</span><strong>$${fmt(a.total_cost)}</strong></div>
+        <div><span>P&amp;L %</span><strong class="${pnlCls(a.pnl_pct)}">${a.pnl_pct>0?'+':''}${a.pnl_pct}%</strong></div>
+      </div>
+    </div>`).join('');
   document.getElementById('tbl-summary').innerHTML = sum.accounts.map(a=>`
     <tr>
       <td><strong>${a.account_name}</strong></td>
@@ -838,6 +1273,31 @@ async function loadDashboard(){
     </tr>`).join('');
   renderPnlChart(sum.accounts);
   renderExposureChart(exp);
+}
+
+function renderDashboardSignalChart(accts){
+  const target = document.getElementById('dash-signal-chart');
+  target.innerHTML='';
+  const top = [...accts].reverse();
+  new ApexCharts(target,{
+    series:[{
+      name:'Market Value',
+      data:top.map(a=>({
+        x:a.account_name.replace(' Fund','').replace(' Desk',''),
+        y:parseFloat(a.market_value)||0,
+        fillColor:(parseFloat(a.unrealized_pnl)||0) >= 0 ? '#3fb950' : '#f85149'
+      }))
+    }],
+    chart:{type:'bar',height:250,background:'transparent',toolbar:{show:false}},
+    plotOptions:{bar:{horizontal:true,borderRadius:6,barHeight:'56%',distributed:true}},
+    dataLabels:{enabled:false},
+    xaxis:{labels:{style:{colors:'#8b949e',fontSize:'11px'},formatter:v=>'$'+fmt(v)}},
+    yaxis:{labels:{style:{colors:'#d3edf3',fontSize:'11px'}}},
+    grid:{borderColor:'#254554',strokeDashArray:3},
+    tooltip:{theme:'dark',y:{formatter:v=>'$'+fmt(v)}},
+    legend:{show:false},
+    theme:{mode:'dark'},
+  }).render();
 }
 
 function renderPnlChart(accts){
@@ -871,10 +1331,68 @@ function renderExposureChart(exp){
 }
 
 // ══ HOLDINGS ════════════════════════════════
+let _holdingsPage = 1;
+const _holdingsPageSize = 8;
+
+function onHoldingsFilterChange(){
+  _holdingsPage = 1;
+  loadHoldings();
+}
+
+function changeHoldingsPage(delta){
+  _holdingsPage = Math.max(1, _holdingsPage + delta);
+  loadHoldings();
+}
+
+function goToHoldingsPage(page){
+  _holdingsPage = Math.max(1, page);
+  loadHoldings();
+}
+
+function getHoldingsPageTokens(current, total){
+  if(total <= 5) return Array.from({length: total}, (_, i) => i + 1);
+  if(current <= 3) return [1, 2, 3, 4, 'ellipsis', total];
+  if(current >= total - 2) return [1, 'ellipsis', total - 3, total - 2, total - 1, total];
+  return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
+}
+
+function renderHoldingsPagination(meta){
+  const summary = document.getElementById('holdings-pagination-summary');
+  const status = document.getElementById('holdings-page-status');
+  const prevBtn = document.getElementById('holdings-prev-btn');
+  const nextBtn = document.getElementById('holdings-next-btn');
+  const pageButtons = document.getElementById('holdings-page-buttons');
+  const start = meta.total === 0 ? 0 : (meta.page - 1) * meta.page_size + 1;
+  const end = meta.total === 0 ? 0 : start + meta.items.length - 1;
+
+  summary.textContent = meta.total
+    ? `Showing ${start}-${end} of ${meta.total} holdings`
+    : 'No holdings found';
+  status.textContent = `Page ${meta.page} / ${meta.total_pages}`;
+  prevBtn.disabled = meta.page <= 1;
+  nextBtn.disabled = meta.page >= meta.total_pages || meta.total === 0;
+  pageButtons.innerHTML = meta.total === 0 ? '' : getHoldingsPageTokens(meta.page, meta.total_pages).map(token => {
+    if(token === 'ellipsis') return '<span class="pager-ellipsis">...</span>';
+    return `<button class="btn btn-ghost btn-sm btn-page ${token===meta.page?'active':''}" onclick="goToHoldingsPage(${token})">${token}</button>`;
+  }).join('');
+}
+
 async function loadHoldings(){
   const aid = document.getElementById('filter-account')?.value||'';
-  const rows = await authFetch(API+(aid?`/api/holdings?account_id=${aid}`:'/api/holdings')).then(r=>r.json());
-  document.getElementById('tbl-holdings').innerHTML = rows.map(h=>{
+  const params = new URLSearchParams({
+    page: String(_holdingsPage),
+    page_size: String(_holdingsPageSize),
+  });
+  if(aid) params.set('account_id', aid);
+  const data = await authFetch(API+`/api/holdings?${params.toString()}`).then(r=>r.json());
+  const rows = data.items || [];
+  const totalPages = data.total_pages || 1;
+  if(!rows.length && (data.total || 0) > 0 && _holdingsPage > totalPages){
+    _holdingsPage = totalPages;
+    return loadHoldings();
+  }
+  _holdingsPage = data.page || 1;
+  document.getElementById('tbl-holdings').innerHTML = rows.length ? rows.map(h=>{
     const mv = (parseFloat(h.net_quantity)*parseFloat(h.current_price)).toFixed(2);
     return `<tr>
       <td>${h.account_name}</td>
@@ -887,15 +1405,81 @@ async function loadHoldings(){
       <td style="text-align:right">$${fmt(mv)}</td>
       <td style="text-align:right" class="${pnlCls(h.unrealized_pnl)}">$${fmt(h.unrealized_pnl)}</td>
       <td style="text-align:right" class="${pnlCls(h.pnl_pct)}">${h.pnl_pct>0?'+':''}${h.pnl_pct}%</td>
-    </tr>`;}).join('');
+    </tr>`;}).join('') : `<tr><td colspan="10" style="text-align:center;color:var(--muted)">No holdings found</td></tr>`;
+  renderHoldingsPagination({
+    items: rows,
+    total: data.total || 0,
+    page: data.page || 1,
+    page_size: data.page_size || _holdingsPageSize,
+    total_pages: totalPages,
+  });
 }
 
 // ══ TRANSACTIONS ════════════════════════════
+let _transactionsPage = 1;
+const _transactionsPageSize = 8;
+
+function onTransactionsFilterChange(){
+  _transactionsPage = 1;
+  loadTransactions();
+}
+
+function changeTransactionsPage(delta){
+  _transactionsPage = Math.max(1, _transactionsPage + delta);
+  loadTransactions();
+}
+
+function goToTransactionsPage(page){
+  _transactionsPage = Math.max(1, page);
+  loadTransactions();
+}
+
+function getTransactionsPageTokens(current, total){
+  if(total <= 5) return Array.from({length: total}, (_, i) => i + 1);
+  if(current <= 3) return [1, 2, 3, 4, 'ellipsis', total];
+  if(current >= total - 2) return [1, 'ellipsis', total - 3, total - 2, total - 1, total];
+  return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
+}
+
+function renderTransactionsPagination(meta){
+  const summary = document.getElementById('txn-pagination-summary');
+  const status = document.getElementById('txn-page-status');
+  const prevBtn = document.getElementById('txn-prev-btn');
+  const nextBtn = document.getElementById('txn-next-btn');
+  const pageButtons = document.getElementById('txn-page-buttons');
+  const start = meta.total === 0 ? 0 : (meta.page - 1) * meta.page_size + 1;
+  const end = meta.total === 0 ? 0 : start + meta.items.length - 1;
+
+  summary.textContent = meta.total
+    ? `Showing ${start}-${end} of ${meta.total} transactions`
+    : 'No transactions found';
+  status.textContent = `Page ${meta.page} / ${meta.total_pages}`;
+  prevBtn.disabled = meta.page <= 1;
+  nextBtn.disabled = meta.page >= meta.total_pages || meta.total === 0;
+  pageButtons.innerHTML = meta.total === 0 ? '' : getTransactionsPageTokens(meta.page, meta.total_pages).map(token => {
+    if(token === 'ellipsis') return '<span class="pager-ellipsis">...</span>';
+    return `<button class="btn btn-ghost btn-sm btn-page ${token===meta.page?'active':''}" onclick="goToTransactionsPage(${token})">${token}</button>`;
+  }).join('');
+}
+
 async function loadTransactions(){
   const aid = document.getElementById('filter-txn-account')?.value||'';
-  const url = aid?`/api/transactions?account_id=${aid}`:'/api/transactions';
-  const rows = await authFetch(API+url).then(r=>r.json());
-  document.getElementById('tbl-txn').innerHTML = rows.map(t=>`
+  const params = new URLSearchParams({
+    page: String(_transactionsPage),
+    page_size: String(_transactionsPageSize),
+  });
+  if(aid) params.set('account_id', aid);
+
+  const data = await authFetch(API+`/api/transactions?${params.toString()}`).then(r=>r.json());
+  const rows = data.items || [];
+  const totalPages = data.total_pages || 1;
+  if(!rows.length && (data.total || 0) > 0 && _transactionsPage > totalPages){
+    _transactionsPage = totalPages;
+    return loadTransactions();
+  }
+  _transactionsPage = data.page || 1;
+
+  document.getElementById('tbl-txn').innerHTML = rows.length ? rows.map(t=>`
     <tr>
       <td style="color:var(--muted)">#${t.transaction_id}</td>
       <td>${t.account_name}</td>
@@ -909,7 +1493,15 @@ async function loadTransactions(){
       <td><span class="badge ${t.status==='cancelled'?'badge-breach':t.status==='amended'?'badge-alert':'badge-ok'}">${t.status}</span></td>
       <td style="color:var(--muted)">${new Date(t.traded_at).toLocaleDateString()}</td>
       <td>${t.status!=='cancelled'?`<button class="btn btn-danger btn-sm" onclick="cancelTxn(${t.transaction_id})">Cancel</button>`:'—'}</td>
-    </tr>`).join('');
+    </tr>`).join('') : `<tr><td colspan="13" style="text-align:center;color:var(--muted)">No transactions found</td></tr>`;
+
+  renderTransactionsPagination({
+    items: rows,
+    total: data.total || 0,
+    page: data.page || 1,
+    page_size: data.page_size || _transactionsPageSize,
+    total_pages: totalPages,
+  });
 }
 
 async function cancelTxn(id){
@@ -945,17 +1537,66 @@ async function submitTxn(){
     notes:document.getElementById('f-notes').value,
   };
   const res=await authFetch(API+'/api/transactions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(res.ok){closeModal('txn-modal');loadTransactions();}
+  if(res.ok){_transactionsPage = 1; closeModal('txn-modal');loadTransactions();}
   else{const e=await res.json();alert('Error: '+(e.detail||'unknown'));}
 }
 
 // ══ RISK ════════════════════════════════════
+let _riskPage = 1;
+const _riskPageSize = 8;
+
+function changeRiskPage(delta){
+  _riskPage = Math.max(1, _riskPage + delta);
+  loadRisk();
+}
+
+function goToRiskPage(page){
+  _riskPage = Math.max(1, page);
+  loadRisk();
+}
+
+function getRiskPageTokens(current, total){
+  if(total <= 5) return Array.from({length: total}, (_, i) => i + 1);
+  if(current <= 3) return [1, 2, 3, 4, 'ellipsis', total];
+  if(current >= total - 2) return [1, 'ellipsis', total - 3, total - 2, total - 1, total];
+  return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
+}
+
+function renderRiskPagination(meta){
+  const summary = document.getElementById('risk-pagination-summary');
+  const status = document.getElementById('risk-page-status');
+  const prevBtn = document.getElementById('risk-prev-btn');
+  const nextBtn = document.getElementById('risk-next-btn');
+  const pageButtons = document.getElementById('risk-page-buttons');
+  const start = meta.total === 0 ? 0 : (meta.page - 1) * meta.page_size + 1;
+  const end = meta.total === 0 ? 0 : start + meta.items.length - 1;
+
+  summary.textContent = meta.total
+    ? `Showing ${start}-${end} of ${meta.total} risk limits`
+    : 'No risk limits found';
+  status.textContent = `Page ${meta.page} / ${meta.total_pages}`;
+  prevBtn.disabled = meta.page <= 1;
+  nextBtn.disabled = meta.page >= meta.total_pages || meta.total === 0;
+  pageButtons.innerHTML = meta.total === 0 ? '' : getRiskPageTokens(meta.page, meta.total_pages).map(token => {
+    if(token === 'ellipsis') return '<span class="pager-ellipsis">...</span>';
+    return `<button class="btn btn-ghost btn-sm btn-page ${token===meta.page?'active':''}" onclick="goToRiskPage(${token})">${token}</button>`;
+  }).join('');
+}
+
 async function loadRisk(){
-  const rows=await authFetch(API+'/api/risk/alerts').then(r=>r.json());
-  document.getElementById('kpi-total-limits').textContent=rows.length;
-  document.getElementById('kpi-alerts').textContent=rows.filter(r=>r.status==='ALERT').length;
-  document.getElementById('kpi-breaches').textContent=rows.filter(r=>r.status==='BREACH').length;
-  document.getElementById('tbl-risk').innerHTML=rows.map(r=>{
+  const data = await authFetch(API+`/api/risk/alerts?page=${_riskPage}&page_size=${_riskPageSize}`).then(r=>r.json());
+  const rows = data.items || [];
+  const totalPages = data.total_pages || 1;
+  if(!rows.length && (data.total || 0) > 0 && _riskPage > totalPages){
+    _riskPage = totalPages;
+    return loadRisk();
+  }
+  _riskPage = data.page || 1;
+
+  document.getElementById('kpi-total-limits').textContent = data.totals?.total_limits ?? 0;
+  document.getElementById('kpi-alerts').textContent = data.totals?.alerts ?? 0;
+  document.getElementById('kpi-breaches').textContent = data.totals?.breaches ?? 0;
+  document.getElementById('tbl-risk').innerHTML=rows.length ? rows.map(r=>{
     const pct=Math.min(parseFloat(r.utilization_pct)||0,100);
     const col=r.status==='BREACH'?'var(--red)':r.status==='ALERT'?'var(--yellow)':'var(--green)';
     return `<tr>
@@ -978,7 +1619,15 @@ async function loadRisk(){
           <button class="btn btn-danger btn-sm"  onclick="deactivateLimit(${r.limit_id})">Del</button>
         </div>
       </td>
-    </tr>`;}).join('');
+    </tr>`;}).join('') : `<tr><td colspan="9" style="text-align:center;color:var(--muted)">No risk limits found</td></tr>`;
+
+  renderRiskPagination({
+    items: rows,
+    total: data.total || 0,
+    page: data.page || 1,
+    page_size: data.page_size || _riskPageSize,
+    total_pages: totalPages,
+  });
 }
 
 async function openModal_Risk(){
@@ -1001,7 +1650,7 @@ async function submitRiskLimit(){
     alert_threshold:parseFloat(document.getElementById('rl-alert').value)||80,
   };
   const res=await authFetch(API+'/api/risk-limits',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(res.ok){closeModal('risk-modal');loadRisk();}
+  if(res.ok){_riskPage = 1; closeModal('risk-modal');loadRisk();}
   else{const e=await res.json();alert('Error: '+(e.detail||'unknown'));}
 }
 
@@ -1033,9 +1682,56 @@ async function deactivateLimit(id){
 }
 
 // ══ MASTER DATA ═════════════════════════════
+const _mdPageSize = 8;
+const _mdPages = {
+  assets: 1,
+  counterparties: 1,
+  accounts: 1,
+  traders: 1,
+  users: 1,
+};
+
+function changeMDPage(key, delta){
+  _mdPages[key] = Math.max(1, (_mdPages[key] || 1) + delta);
+  loadSubTab(key);
+}
+
+function goToMDPage(key, page){
+  _mdPages[key] = Math.max(1, page);
+  loadSubTab(key);
+}
+
+function renderMDPagination(key, meta, label){
+  const summary = document.getElementById(`${key}-pagination-summary`);
+  const status = document.getElementById(`${key}-page-status`);
+  const prevBtn = document.getElementById(`${key}-prev-btn`);
+  const nextBtn = document.getElementById(`${key}-next-btn`);
+  const pageButtons = document.getElementById(`${key}-page-buttons`);
+  const start = meta.total === 0 ? 0 : (meta.page - 1) * meta.page_size + 1;
+  const end = meta.total === 0 ? 0 : start + meta.items.length - 1;
+
+  summary.textContent = meta.total
+    ? `Showing ${start}-${end} of ${meta.total} ${label}`
+    : `No ${label} found`;
+  status.textContent = `Page ${meta.page} / ${meta.total_pages}`;
+  prevBtn.disabled = meta.page <= 1;
+  nextBtn.disabled = meta.page >= meta.total_pages || meta.total === 0;
+  pageButtons.innerHTML = meta.total === 0 ? '' : getRiskPageTokens(meta.page, meta.total_pages).map(token => {
+    if(token === 'ellipsis') return '<span class="pager-ellipsis">...</span>';
+    return `<button class="btn btn-ghost btn-sm btn-page ${token===meta.page?'active':''}" onclick="goToMDPage('${key}', ${token})">${token}</button>`;
+  }).join('');
+}
+
 async function loadMDAssets(){
-  const rows=await authFetch(API+'/api/assets').then(r=>r.json());
-  document.getElementById('tbl-assets').innerHTML=rows.map(a=>`
+  const data = await authFetch(API+`/api/assets?page=${_mdPages.assets}&page_size=${_mdPageSize}`).then(r=>r.json());
+  const rows = data.items || [];
+  const totalPages = data.total_pages || 1;
+  if(!rows.length && (data.total || 0) > 0 && _mdPages.assets > totalPages){
+    _mdPages.assets = totalPages;
+    return loadMDAssets();
+  }
+  _mdPages.assets = data.page || 1;
+  document.getElementById('tbl-assets').innerHTML=rows.length ? rows.map(a=>`
     <tr>
       <td><strong style="color:var(--blue)">${a.ticker}</strong></td>
       <td>${a.name}</td>
@@ -1043,7 +1739,14 @@ async function loadMDAssets(){
       <td style="text-align:right">${fmt(a.last_price)}</td>
       <td><span class="badge badge-ok">active</span></td>
       <td><button class="btn btn-danger btn-sm" onclick="delistAsset(${a.asset_id})">Delist</button></td>
-    </tr>`).join('');
+    </tr>`).join('') : `<tr><td colspan="8" style="text-align:center;color:var(--muted)">No assets found</td></tr>`;
+  renderMDPagination('assets', {
+    items: rows,
+    total: data.total || 0,
+    page: data.page || 1,
+    page_size: data.page_size || _mdPageSize,
+    total_pages: totalPages,
+  }, 'assets');
 }
 
 async function submitAsset(){
@@ -1056,7 +1759,7 @@ async function submitAsset(){
     last_price:parseFloat(document.getElementById('a-price').value)||0,
   };
   const res=await authFetch(API+'/api/assets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(res.ok){closeModal('asset-modal');loadMDAssets();}
+  if(res.ok){_mdPages.assets = 1; closeModal('asset-modal');loadMDAssets();}
   else{const e=await res.json();alert('Error: '+(e.detail||'unknown'));}
 }
 
@@ -1067,14 +1770,28 @@ async function delistAsset(id){
 }
 
 async function loadMDCPs(){
-  const rows=await authFetch(API+'/api/counterparties').then(r=>r.json());
-  document.getElementById('tbl-cps').innerHTML=rows.map(c=>`
+  const data = await authFetch(API+`/api/counterparties?page=${_mdPages.counterparties}&page_size=${_mdPageSize}`).then(r=>r.json());
+  const rows = data.items || [];
+  const totalPages = data.total_pages || 1;
+  if(!rows.length && (data.total || 0) > 0 && _mdPages.counterparties > totalPages){
+    _mdPages.counterparties = totalPages;
+    return loadMDCPs();
+  }
+  _mdPages.counterparties = data.page || 1;
+  document.getElementById('tbl-cps').innerHTML=rows.length ? rows.map(c=>`
     <tr>
       <td><strong>${c.name}</strong></td>
       <td>${c.type}</td><td>${c.country||'—'}</td><td>${c.credit_rating||'—'}</td>
       <td><span class="badge badge-ok">active</span></td>
       <td><button class="btn btn-danger btn-sm" onclick="deactivateCp(${c.counterparty_id})">Deactivate</button></td>
-    </tr>`).join('');
+    </tr>`).join('') : `<tr><td colspan="6" style="text-align:center;color:var(--muted)">No counterparties found</td></tr>`;
+  renderMDPagination('counterparties', {
+    items: rows,
+    total: data.total || 0,
+    page: data.page || 1,
+    page_size: data.page_size || _mdPageSize,
+    total_pages: totalPages,
+  }, 'counterparties');
 }
 
 async function submitCp(){
@@ -1085,7 +1802,7 @@ async function submitCp(){
     credit_rating:document.getElementById('cp-rating').value,
   };
   const res=await authFetch(API+'/api/counterparties',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(res.ok){closeModal('cp-modal');loadMDCPs();}
+  if(res.ok){_mdPages.counterparties = 1; closeModal('cp-modal');loadMDCPs();}
   else{const e=await res.json();alert('Error: '+(e.detail||'unknown'));}
 }
 
@@ -1096,19 +1813,33 @@ async function deactivateCp(id){
 }
 
 async function loadMDAccounts(){
-  const [accts,traders]=await Promise.all([
-    authFetch(API+'/api/accounts').then(r=>r.json()),
+  const [data,traders]=await Promise.all([
+    authFetch(API+`/api/accounts?page=${_mdPages.accounts}&page_size=${_mdPageSize}`).then(r=>r.json()),
     authFetch(API+'/api/traders').then(r=>r.json()),
   ]);
+  const accts = data.items || [];
+  const totalPages = data.total_pages || 1;
+  if(!accts.length && (data.total || 0) > 0 && _mdPages.accounts > totalPages){
+    _mdPages.accounts = totalPages;
+    return loadMDAccounts();
+  }
+  _mdPages.accounts = data.page || 1;
   const traderMap=Object.fromEntries(traders.map(t=>[t.trader_id,t.name]));
-  document.getElementById('tbl-accounts-md').innerHTML=accts.map(a=>`
+  document.getElementById('tbl-accounts-md').innerHTML=accts.length ? accts.map(a=>`
     <tr>
       <td><strong>${a.account_name}</strong></td>
       <td>${a.account_type}</td><td>${a.base_currency}</td>
       <td>${traderMap[a.trader_id]||'—'}</td>
       <td><span class="badge badge-ok">${a.status}</span></td>
       <td><button class="btn btn-danger btn-sm" onclick="closeAccount(${a.account_id})">Close</button></td>
-    </tr>`).join('');
+    </tr>`).join('') : `<tr><td colspan="6" style="text-align:center;color:var(--muted)">No accounts found</td></tr>`;
+  renderMDPagination('accounts', {
+    items: accts,
+    total: data.total || 0,
+    page: data.page || 1,
+    page_size: data.page_size || _mdPageSize,
+    total_pages: totalPages,
+  }, 'accounts');
   // populate trader dropdown in modal
   document.getElementById('ac-trader').innerHTML=traders.map(t=>`<option value="${t.trader_id}">${t.name}</option>`).join('');
 }
@@ -1121,7 +1852,7 @@ async function submitAccount(){
     trader_id:parseInt(document.getElementById('ac-trader').value),
   };
   const res=await authFetch(API+'/api/accounts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(res.ok){closeModal('account-modal');loadMDAccounts();}
+  if(res.ok){_mdPages.accounts = 1; closeModal('account-modal');loadMDAccounts();}
   else{const e=await res.json();alert('Error: '+(e.detail||'unknown'));}
 }
 
@@ -1132,20 +1863,67 @@ async function closeAccount(id){
 }
 
 async function loadMDTraders(){
-  const rows=await authFetch(API+'/api/traders').then(r=>r.json());
-  document.getElementById('tbl-traders').innerHTML=rows.map(t=>`
+  const data = await authFetch(API+`/api/traders?page=${_mdPages.traders}&page_size=${_mdPageSize}`).then(r=>r.json());
+  const rows = data.items || [];
+  const totalPages = data.total_pages || 1;
+  if(!rows.length && (data.total || 0) > 0 && _mdPages.traders > totalPages){
+    _mdPages.traders = totalPages;
+    return loadMDTraders();
+  }
+  _mdPages.traders = data.page || 1;
+  document.getElementById('tbl-traders').innerHTML=rows.length ? rows.map(t=>`
     <tr>
       <td><strong>${t.name}</strong></td><td style="color:var(--muted)">${t.email}</td>
       <td><span class="badge badge-info">${t.role}</span></td>
       <td><span class="badge ${t.status==='active'?'badge-ok':'badge-breach'}">${t.status}</span></td>
-    </tr>`).join('');
+    </tr>`).join('') : `<tr><td colspan="4" style="text-align:center;color:var(--muted)">No traders found</td></tr>`;
+  renderMDPagination('traders', {
+    items: rows,
+    total: data.total || 0,
+    page: data.page || 1,
+    page_size: data.page_size || _mdPageSize,
+    total_pages: totalPages,
+  }, 'traders');
+}
+
+async function submitTrader(){
+  const name = document.getElementById('tr-name').value.trim();
+  const email = document.getElementById('tr-email').value.trim();
+  const phone = document.getElementById('tr-phone').value.trim();
+  const role = document.getElementById('tr-role').value;
+  const status = document.getElementById('tr-status').value;
+  if(!name || !email){ alert('Name and email are required'); return; }
+
+  const res = await authFetch(API+'/api/traders',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name,email,phone,role,status})});
+  if(res.ok){
+    _mdPages.traders = 1;
+    closeModal('trader-modal');
+    document.getElementById('tr-name').value = '';
+    document.getElementById('tr-email').value = '';
+    document.getElementById('tr-phone').value = '';
+    document.getElementById('tr-role').value = 'fund_manager';
+    document.getElementById('tr-status').value = 'active';
+    await Promise.all([loadMDTraders(), loadMDAccounts()]);
+  } else {
+    const e = await res.json();
+    alert('Error: '+(e.detail||'unknown'));
+  }
 }
 
 // ══ USERS ═══════════════════════════════════
 async function loadMDUsers(){
-  const rows = await authFetch(API+'/api/users').then(r=>r.json());
+  const data = await authFetch(API+`/api/users?page=${_mdPages.users}&page_size=${_mdPageSize}`).then(r=>r.json());
+  const rows = data.items || [];
+  const totalPages = data.total_pages || 1;
+  if(!rows.length && (data.total || 0) > 0 && _mdPages.users > totalPages){
+    _mdPages.users = totalPages;
+    return loadMDUsers();
+  }
+  _mdPages.users = data.page || 1;
   const me = localStorage.getItem('pm_user');
-  document.getElementById('tbl-users').innerHTML = rows.map(u=>`
+  document.getElementById('tbl-users').innerHTML = rows.length ? rows.map(u=>`
     <tr>
       <td style="color:var(--muted)">#${u.user_id}</td>
       <td><strong>${u.username}</strong>${u.username===me?' <span style="color:var(--blue);font-size:11px">(you)</span>':''}</td>
@@ -1155,7 +1933,14 @@ async function loadMDUsers(){
         <button class="btn btn-warning btn-sm" onclick="openEditUser(${u.user_id},'${u.username}','${u.role}')">Edit</button>
         ${u.username!=='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.user_id},'${u.username}')">Delete</button>`:'—'}
       </td>
-    </tr>`).join('');
+    </tr>`).join('') : `<tr><td colspan="5" style="text-align:center;color:var(--muted)">No users found</td></tr>`;
+  renderMDPagination('users', {
+    items: rows,
+    total: data.total || 0,
+    page: data.page || 1,
+    page_size: data.page_size || _mdPageSize,
+    total_pages: totalPages,
+  }, 'users');
 }
 
 async function submitUser(){
@@ -1169,6 +1954,7 @@ async function submitUser(){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({username,password,role})});
   if(res.ok){
+    _mdPages.users = 1;
     closeModal('user-modal');
     document.getElementById('u-username').value='';
     document.getElementById('u-password').value='';
@@ -1208,15 +1994,10 @@ async function initFilters(){
   const accts=await authFetch(API+'/api/accounts').then(r=>r.json());
   ['filter-account','filter-txn-account'].forEach(id=>{
     const sel=document.getElementById(id);
+    sel.innerHTML = '<option value="">All Accounts</option>';
     accts.forEach(a=>sel.innerHTML+=`<option value="${a.account_id}">${a.account_name}</option>`);
   });
 }
-
-// Override openModal for transaction (needs prefetch)
-document.getElementById('txn-modal').closest('.modal-overlay');
-// patch the + New Trade button
-document.querySelector('[onclick="openModal(\'txn-modal\')"]')?.setAttribute('onclick','openModal_Txn()');
-document.querySelector('[onclick="openModal(\'risk-modal\')"]')?.setAttribute('onclick','openModal_Risk()');
 
 // ══ TRADING ═════════════════════════════════
 let _tradingChart = null;
@@ -1241,6 +2022,7 @@ async function loadTrading(){
 
   // Select first ticker
   if(wl.length) selectTicker(wl[0].ticker, wl[0].asset_id||null);
+  setDir('buy');
 }
 
 function renderWatchlist(items){
@@ -1375,7 +2157,8 @@ async function loadChart(ticker, period){
 }
 
 async function loadRecentTrades(ticker){
-  const txns = await authFetch(API+'/api/transactions').then(r=>r.json());
+  const txnsRes = await authFetch(API+'/api/transactions?limit=100').then(r=>r.json());
+  const txns = txnsRes.items || [];
   const filtered = txns.filter(t=>t.ticker===ticker).slice(0,10);
   document.getElementById('recent-trades-list').innerHTML = filtered.length
     ? filtered.map(t=>`
@@ -1445,8 +2228,6 @@ async function submitOrder(){
   }
 }
 
-loadDashboard();
-initFilters();
 </script>
 </body>
 </html>
